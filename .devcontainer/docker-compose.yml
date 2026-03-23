@@ -1,0 +1,23 @@
+name: astrodev
+
+services:
+  dev-container:
+    image: vtastrobotics/astro-dev:main
+    build:
+      dockerfile: "Dockerfile"
+    privileged: true
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ..:/workspace:cached
+      - /dev:/dev:bind
+    command: sleep infinity
+
+  microros-agent:
+     image: microros/micro-ros-agent:humble
+     privileged: true
+     network_mode: host
+     volumes:
+       - /dev:/dev
+     command: serial --dev /dev/ttyACM0 -b 115200

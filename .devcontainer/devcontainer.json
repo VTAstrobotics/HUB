@@ -1,0 +1,57 @@
+{
+	"name": "HUB Development Environment",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "dev-container",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	// "workspaceFolder": "/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/workspace",
+	"containerEnv": {
+		/* Uncomment to allow the container to access the X server on the host e.g. to run Rviz and other GUI tools
+    	"DISPLAY": "${localEnv:DISPLAY}"
+		*/
+    },
+	"mounts": [
+		/* Uncomment to allow the container to access the X server on the host e.g. to run Rviz and other GUI tools
+		{
+			"source": "/tmp/.X11-unix",
+			"target": "/tmp/.X11-unix",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:XAUTHORITY:-$HOME/.Xauthority}",
+			"target": "/root/.Xauthority",
+			"type": "bind"
+		},
+		*/
+
+		/* Uncomment to persist bash history between sessions
+		{
+			"source": "${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history",
+			"target": "/root/.bash_history",
+			"type": "bind"
+		}
+		*/
+		// "source=${localWorkspaceFolder}/anubis_ws/src,target=/workspaces/ANUBIS/anubis_ws/src,type=bind",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.bash_history,target=/home/vscode/.bash_history,type=bind",
+		"source=/dev/,target=/dev/,type=bind",
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                // "donjayamanne.githistory",
+				"eamodio.gitlens",
+                "mhutchie.git-graph",
+				"ms-azuretools.vscode-docker",
+				"ms-iot.vscode-ros",
+                // "ms-python.vscode-pylance",
+                // "ms-python.python"
+				// "ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"xaver.clang-format",
+              ]
+        }
+    },
+	"postStartCommand": "/bin/sh -c \"chmod 777 /workspace/.devcontainer/entrypoint.sh\" && /workspace/.devcontainer/entrypoint.sh",
+	"shutdownAction": "stopCompose",
+  }
