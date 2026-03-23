@@ -1,0 +1,22 @@
+# kraken_params.yaml
+kraken_front_left:
+  ros__parameters:
+    motor_name: "front_left_motor"
+    control_topic: "/front_left/control"
+    status_topic: "/front_left/status"
+    health_topic: "/front_left/health"
+    status_publish_frequency: 50.0
+    health_publish_frequency: 5.0
+    can_interface: "can1"
+    can_id: 23
+
+kraken_front_right:
+  ros__parameters:
+    motor_name: "front_right_motor"
+    control_topic: "/front_right/control"
+    status_topic: "/front_right/status"
+    health_topic: "/front_right/health"
+    status_publish_frequency: 50.0
+    health_publish_frequency: 5.0
+    can_interface: "can1"
+    can_id: 2

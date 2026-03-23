@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com)
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot name="URDFassy">
+
+  <!-- Root link MUST have no inertial -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://reaper_description/meshes/visual/Chassis.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://reaper_description/meshes/visual/Chassis.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Dummy inertial link (child of base_link) -->
+  <link name="base_inertial">
+    <inertial>
+      <origin
+        xyz="0.268041600725968 0.102021849345525 -6.48544629737818E-08"
+        rpy="0 0 0"/>
+      <mass value="146.224560356707"/>
+      <inertia
+        ixx="10.5200179364845"
+        ixy="-1.93496024812939"
+        ixz="1.65925274358814E-07"
+        iyy="22.9867369537623"
+        iyz="1.82289041966192E-06"
+        izz="18.0208175606407"/>
+    </inertial>
+  </link>
+
+  <!-- Fixed joint connecting the massless root to the inertial link -->
+  <joint name="base_link_to_inertial" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_inertial"/>
+    <!-- Real inertial offset relative to the chassis -->
+    <origin
+      xyz="0.268041600725968 0.102021849345525 -6.48544629737818E-08"
+      rpy="0 0 0"/>
+  </joint>
+
+</robot>

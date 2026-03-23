@@ -1,0 +1,54 @@
+usb-Framework_Laptop_Webcam_Module__2nd_Gen__FRANJBCHA1537100EB-video-index0:
+  image_width: 640
+  image_height: 480
+  camera_name: narrow_stereo
+  camera_matrix:
+    rows: 3
+    cols: 3
+    data: [533.38358,   0.     , 322.14308,
+            0.     , 533.78633, 245.73321,
+            0.     ,   0.     ,   1.     ]
+  distortion_model: plumb_bob
+  distortion_coefficients:
+    rows: 1
+    cols: 5
+    data: [0.100986, 0.022668, -0.001765, 0.005924, 0.000000]
+  rectification_matrix:
+    rows: 3
+    cols: 3
+    data: [1., 0., 0.,
+          0., 1., 0.,
+          0., 0., 1.]
+  projection_matrix:
+    rows: 3
+    cols: 4
+    data: [563.73785,   0.     , 324.80418,   0.     ,
+            0.     , 565.59888, 244.26385,   0.     ,
+            0.     ,   0.     ,   1.     ,   0.     ]
+usb-046d_Brio_101_2450APR8ZF68-video-index0:
+  image_width: 800
+  image_height: 600
+  camera_name: narrow_stereo
+  camera_matrix:
+    rows: 3
+    cols: 3
+    data: [1108.91793,    0.     ,  463.93354,
+              0.     , 1091.16189,  316.44836,
+              0.     ,    0.     ,    1.     ]
+  distortion_model: plumb_bob
+  distortion_coefficients:
+    rows: 1
+    cols: 5
+    data: [0.513070, -3.175907, -0.003528, 0.006497, 0.000000]
+  rectification_matrix:
+    rows: 3
+    cols: 3
+    data: [1., 0., 0.,
+          0., 1., 0.,
+          0., 0., 1.]
+  projection_matrix:
+    rows: 3
+    cols: 4
+    data: [1121.13749,    0.     ,  469.04579,    0.     ,
+              0.     , 1115.45759,  315.64562,    0.     ,
+              0.     ,    0.     ,    1.     ,    0.     ]

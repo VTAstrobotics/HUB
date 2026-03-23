@@ -1,0 +1,13 @@
+# git will ignore bloat resulting from build
+hub_ws/build/
+hub_ws/install/
+hub_ws/log/
+hub_ws/src/build/
+hub_ws/src/install/
+hub_ws/src/log/
+build/
+log/
+install/
+# prevent accidental overwrites
+.vscode
+.devcontainer/build.log
