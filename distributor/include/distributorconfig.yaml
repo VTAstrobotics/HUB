@@ -1,0 +1,10 @@
+distributorcontrols:
+  ros_parameters: 
+    TRANSLATION_CONTROL: "LSTICKY"
+    ROTATION_CONTROL: "RSTICKX"
+    CONVEYOR_FORWARD: "BUTTON_B"
+    CONVEYOR_REVERSE: "BUTTON_A"
+    LINEAR_SCALE: 0.6
+    ANGULAR_SCALE: 1.8
+    # double linear_scale = 0.6; (parameter)
+    # double angular_scale = 1.8; (parameter)
