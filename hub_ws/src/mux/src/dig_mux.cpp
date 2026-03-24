@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/int_32.hpp"
-#include "std_msgs/msg/float_32.hpp"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/float32.hpp"
 
 enum Autonomy_States
 {

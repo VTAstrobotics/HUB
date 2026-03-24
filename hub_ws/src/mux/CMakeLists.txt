@@ -9,6 +9,22 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
+find_package(std_msgs REQUIRED)
+
+add_executable(dig_mux_node src/dig_mux.cpp)
+target_include_directories(dig_mux_node PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+ament_target_dependencies(dig_mux_node
+  rclcpp
+  std_msgs
+)
+
+install(TARGETS dig_mux_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
