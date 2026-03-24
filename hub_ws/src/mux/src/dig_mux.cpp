@@ -21,13 +21,13 @@ public:
     DigMux() : Node("dig_mux")
     {
         autonomy_subscriber = this->create_subscription<std_msgs::msg::Float32>(
-        "/dig_teleop", 10, std::bind(&Drive::cmd_vel_callback, this, _1));
+        "/dig_teleop", 10, std::bind(&Drive::dig_teleop_callback, this, _1));
 
         teleop_subscriber = this->create_subscription<std_msgs::msg::Int32>(
-        "/dig_autonomy", 10, std::bind(&Drive::cmd_vel_callback, this, _1));
+        "/dig_autonomy", 10, std::bind(&Drive::dig_autonomy_callback, this, _1));
 
         control_signal = this->create_subscription<std_msgs::msg::Int32>(
-        "/dig_mux_control", 10, std::bind(&Drive::cmd_vel_callback, this, _1));
+        "/dig_control_signal", 10, std::bind(&Drive::dig_control_signal, this, _1));
     }
 
 private:
