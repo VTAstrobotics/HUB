@@ -46,17 +46,38 @@ private:
     void dig_control_signal_callback(std_msgs::msg::Int32::SharedPtr msg)
     {
         control_state = static_cast<Control_Signal>(msg->data);
+        if (msg->data < TELEOP || msg->data > AUTO)
+            return;
     }
+
     void dig_autonomy_callback(std_msgs::msg::Int32::SharedPtr msg)
     {
         if (control_state != AUTO)
             return;
+
+        if (msg->data < DIG || msg->data > HOME)
+        {
+            RCLCPP_WARN(this->get_logger(), "Invalid autonomy state: %d", msg->data);
+            return;
+        }
+
         Autonomy_State auto_state = static_cast<Autonomy_State>(msg->data);
         switch (auto_state)
         {
-            // TODO: logic for calling dig server based on auto state
+        case DIG:
+            RCLCPP_INFO(this->get_logger(), "AUTO: DIG");
+            break;
+        case DUMP:
+            RCLCPP_INFO(this->get_logger(), "AUTO: DUMP");
+            break;
+        case HOME:
+            RCLCPP_INFO(this->get_logger(), "AUTO: HOME");
+            break;
+        default:
+            break;
         }
     }
+
     void dig_teleop_callback(std_msgs::msg::Float32::SharedPtr msg)
     {
         if (control_state != TELEOP)

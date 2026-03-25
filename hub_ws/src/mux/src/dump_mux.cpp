@@ -4,7 +4,6 @@
 
 enum Autonomy_State
 {
-    DIG,
     DUMP,
     HOME
 };
@@ -35,7 +34,7 @@ public:
             "/dump_control_signal", 10, std::bind(&DumpMux::dump_control_signal_callback, this, _1));
 
         actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
-        door_publisher     = this->create_publisher<std_msgs::msg::Float32>("/dump_door_teleop", 10);
+        door_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_door_teleop", 10);
 
         control_state = TELEOP;
     }
@@ -52,10 +51,13 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr door_publisher;
 
     Control_Signal control_state;
-    //Next TBD: define dump action client
+    // Next TBD: define dump action client
 
     void dump_control_signal_callback(std_msgs::msg::Int32::SharedPtr msg)
     {
+        if (msg->data < TELEOP || msg->data > AUTO)
+            return;
+
         control_state = static_cast<Control_Signal>(msg->data);
     }
 
@@ -63,10 +65,27 @@ private:
     {
         if (control_state != AUTO)
             return;
+
+        if (msg->data < DUMP || msg->data > HOME)
+        {
+            RCLCPP_WARN(this->get_logger(), "Invalid autonomy state: %d", msg->data);
+            return;
+        }
         Autonomy_State auto_state = static_cast<Autonomy_State>(msg->data);
+
         switch (auto_state)
         {
-            // TBD: logic for calling dump server based on auto state
+        case DIG:
+            RCLCPP_INFO(this->get_logger(), "AUTO: DIG");
+            break;
+        case DUMP:
+            RCLCPP_INFO(this->get_logger(), "AUTO: DUMP");
+            break;
+        case HOME:
+            RCLCPP_INFO(this->get_logger(), "AUTO: HOME");
+            break;
+        default:
+            break;
         }
     }
 

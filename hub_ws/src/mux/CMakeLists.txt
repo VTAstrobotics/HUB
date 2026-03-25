@@ -12,7 +12,15 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_executable(dig_mux_node src/dig_mux.cpp)
+
+add_executable(dump_mux_node src/dig_mux.cpp)
+
+
 target_include_directories(dig_mux_node PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_include_directories(dump_mux_node PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
@@ -21,9 +29,19 @@ ament_target_dependencies(dig_mux_node
   std_msgs
 )
 
+ament_target_dependencies(dump_mux_node
+  rclcpp
+  std_msgs
+)
+
 install(TARGETS dig_mux_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
+install(TARGETS dump_mux_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
