@@ -2,7 +2,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/float32.hpp"
 
-enum Autonomy_States
+enum Autonomy_State
 {
     DIG,
     DUMP,
@@ -51,7 +51,11 @@ private:
     {
         if (control_state != AUTO)
             return;
-        // TODO: logic for calling dig server
+        Autonomy_State auto_state = static_cast<Autonomy_State>(msg->data);
+        switch (auto_state)
+        {
+            // TODO: logic for calling dig server based on auto state
+        }
     }
     void dig_teleop_callback(std_msgs::msg::Float32::SharedPtr msg)
     {
