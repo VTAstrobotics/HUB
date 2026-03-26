@@ -27,7 +27,7 @@ def generate_launch_description():
                 name=f'{cam_name}_usb_cam',
                 namespace=cam_name,
                 output='screen',
-                parameters=[{
+                parameters=[{ #half of this is not needed
                     'video_device': video_device,
                     'framerate': 30.0,
                     'io_method': 'mmap',
