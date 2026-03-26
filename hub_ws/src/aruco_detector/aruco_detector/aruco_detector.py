@@ -9,6 +9,12 @@ from geometry_msgs.msg import TransformStamped
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
+from rcl_interfaces.msg import ParameterDescriptor
+
+
+
+
+#TODO modify so paramaterize camera topic and name
 
 class ArucoDetector(Node):
     def __init__(self):
@@ -18,15 +24,19 @@ class ArucoDetector(Node):
         self.aruco_params = cv2.aruco.DetectorParameters_create()
         self.marker_size = 0.072  # Marker size in meters (adjust based on your marker)
 
+        self.declare_parameter('camera_name', 'camera_front', ParameterDescriptor(description='camera name to listen to'))
+
+        self.camera_name = self.get_parameter('camera_name').get_parameter_value().string_value
+
         # Camera parameters
         self.camera_matrix = None
         self.dist_coeffs = None
 
         # Subscribers
         self.image_sub = self.create_subscription(
-            Image, '/image_raw', self.image_callback, 10)
+            Image, "/" + self.camera_name + "/image_raw", self.image_callback, 10)
         self.info_sub = self.create_subscription(
-            CameraInfo, '/camera_info', self.info_callback, 10)
+            CameraInfo, "/" + self.camera_name + "/camera_info", self.info_callback, 10)
 
         # Publisher
         self.pose_pub = self.create_publisher(PoseStamped, '/aruco_pose', 10)
@@ -70,7 +80,7 @@ class ArucoDetector(Node):
                     # Create pose message
                     pose_msg = PoseStamped()
                     pose_msg.header = msg.header
-                    pose_msg.header.frame_id = 'camera_frame'
+                    pose_msg.header.frame_id = self.camera_name + "_frame"
                     pose_msg.pose.position.x = float(tvec[0])
                     pose_msg.pose.position.y = float(tvec[1])
                     pose_msg.pose.position.z = float(tvec[2])
@@ -89,7 +99,7 @@ class ArucoDetector(Node):
                     # Publish visualization marker
                     marker_msg = Marker()
                     marker_msg.header = msg.header
-                    marker_msg.header.frame_id = 'camera_frame'
+                    marker_msg.header.frame_id = self.camera_name + "_frame"
                     marker_msg.type = Marker.CUBE
                     marker_msg.action = Marker.ADD
                     marker_msg.pose = pose_msg.pose
@@ -106,8 +116,9 @@ class ArucoDetector(Node):
                     # Publish TF transform
                     t = TransformStamped()
                     t.header = msg.header
-                    t.header.frame_id = 'camera_frame'
-                    t.child_frame_id = 'aruco_frame'
+                    t.header.frame_id = self.camera_name + "_frame"
+                    t.child_frame_id = f'aruco_tag_{marker_id}'
+
                     t.transform.translation.x = float(tvec[0])
                     t.transform.translation.y = float(tvec[1])
                     t.transform.translation.z = float(tvec[2])
