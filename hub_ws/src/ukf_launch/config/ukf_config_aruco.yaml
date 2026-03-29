@@ -36,24 +36,8 @@ ukf_node_aruco:
     # imu0_twist_rejection_threshold: 100
     # imu0_linear_acceleration_rejection_threshold: 100
 
-    pose0: /aruco_pose_camera_front
-    pose0_config: [ false, false, false,   # x y z (
-                   false, false,  true,   # roll pitch yaw
-                   false, false, false,   # vx vy vz
-                   false, false,  true,   # vroll vpitch vyaw
-                   false, false,  false ]  # ax ay az (linear accel)
 
-    pose0_relative:      false
-    pose0_differential:  false
-    pose0_queue_size:    20
-    pose0_nodelay:       true
-    # imu0_rejection_threshold: 100
-    # imu0_pose_rejection_threshold: 100
-    # imu0_twist_rejection_threshold: 100
-    # imu0_linear_acceleration_rejection_threshold: 100
-
-
-    pose1: /aruco_pose_camera_front
+    pose1: /aruco_pose_camera_left
     pose1_config: [ false, false, false,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
@@ -70,7 +54,7 @@ ukf_node_aruco:
     # imu0_linear_acceleration_rejection_threshold: 100
 
 
-    pose2: /aruco_pose_camera_front
+    pose2: /aruco_pose_camera_right
     pose2_config: [ false, false, false,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
@@ -87,9 +71,10 @@ ukf_node_aruco:
     # imu0_linear_acceleration_rejection_threshold: 100
 
 
-    pose3: /aruco_pose_camera_front
+
+    pose3: /aruco_pose_camera_rear
     pose3_config: [ false, false, false,   # x y z (
-                   false, false,  true,   # roll pitch yaw
+                  false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
                    false, false,  true,   # vroll vpitch vyaw
                    false, false,  false ]  # ax ay az (linear accel)
@@ -102,3 +87,5 @@ ukf_node_aruco:
     # imu0_pose_rejection_threshold: 100
     # imu0_twist_rejection_threshold: 100
     # imu0_linear_acceleration_rejection_threshold: 100
+
+

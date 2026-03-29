@@ -52,8 +52,9 @@ class ArucoDetector(Node):
         self.pose_pub = self.create_publisher(PoseStamped, "/aruco_pose", 10)
         self.marker_pub = self.create_publisher(Marker, "/aruco_marker", 10)
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.robot_pose_pub = self.create_publisher(PoseStamped, f"/aruco_pose_{self.camera_name}", 10)
-
+        self.robot_pose_pub = self.create_publisher(
+            PoseStamped, f"/aruco_pose_{self.camera_name}", 10
+        )
 
         self.get_logger().info("ArUco Detector Node Started")
 
@@ -167,7 +168,6 @@ class ArucoDetector(Node):
                         - pose_msg.pose.position.z
                         - trans_base_link.translation.x
                     )
-
                     robot_w_rot = (
                         tag.rotation.w
                         - pose_msg.pose.orientation.w
