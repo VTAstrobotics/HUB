@@ -14,22 +14,26 @@ from tf2_ros.buffer import Buffer
 from tf2_ros import LookupException
 
 
+# TODO modify so paramaterize camera topic and name
 
-
-
-#TODO modify so paramaterize camera topic and name
 
 class ArucoDetector(Node):
     def __init__(self):
-        super().__init__('aruco_detector')
+        super().__init__("aruco_detector")
         self.bridge = CvBridge()
         self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
         self.aruco_params = cv2.aruco.DetectorParameters_create()
         self.marker_size = 0.072  # Marker size in meters (adjust based on your marker)
 
-        self.declare_parameter('camera_name', 'camera_front', ParameterDescriptor(description='camera name to listen to'))
+        self.declare_parameter(
+            "camera_name",
+            "camera_front",
+            ParameterDescriptor(description="camera name to listen to"),
+        )
 
-        self.camera_name = self.get_parameter('camera_name').get_parameter_value().string_value
+        self.camera_name = (
+            self.get_parameter("camera_name").get_parameter_value().string_value
+        )
 
         self._tf_buffer = Buffer()
         # Camera parameters
@@ -38,39 +42,45 @@ class ArucoDetector(Node):
 
         # Subscribers
         self.image_sub = self.create_subscription(
-            Image, "/" + self.camera_name + "/image_raw", self.image_callback, 10)
+            Image, "/" + self.camera_name + "/image_raw", self.image_callback, 10
+        )
         self.info_sub = self.create_subscription(
-            CameraInfo, "/" + self.camera_name + "/camera_info", self.info_callback, 10)
+            CameraInfo, "/" + self.camera_name + "/camera_info", self.info_callback, 10
+        )
 
         # Publisher
-        self.pose_pub = self.create_publisher(PoseStamped, '/aruco_pose', 10)
-        self.marker_pub = self.create_publisher(Marker, '/aruco_marker', 10)
+        self.pose_pub = self.create_publisher(PoseStamped, "/aruco_pose", 10)
+        self.marker_pub = self.create_publisher(Marker, "/aruco_marker", 10)
         self.tf_broadcaster = TransformBroadcaster(self)
+        self.robot_pose_pub = self.create_publisher(PoseStamped, f"/aruco_pose_{self.camera_name}", 10)
 
-        self.get_logger().info('ArUco Detector Node Started')
+
+        self.get_logger().info("ArUco Detector Node Started")
 
     def info_callback(self, msg):
         # Store camera intrinsics and distortion coefficients
         self.camera_matrix = np.array(msg.k).reshape(3, 3)
         self.dist_coeffs = np.array(msg.d)
-        self.get_logger().info('Received camera info')
+        self.get_logger().info("Received camera info")
 
     def image_callback(self, msg):
         if self.camera_matrix is None or self.dist_coeffs is None:
-            self.get_logger().warn('Waiting for camera info...')
+            self.get_logger().warn("Waiting for camera info...")
             return
 
         # Convert ROS Image to OpenCV
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
         # Detect ArUco markers
         corners, ids, _ = cv2.aruco.detectMarkers(
-            cv_image, self.aruco_dict, parameters=self.aruco_params)
+            cv_image, self.aruco_dict, parameters=self.aruco_params
+        )
 
         if ids is not None:
             # Estimate pose for each detected marker
             rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
-                corners, self.marker_size, self.camera_matrix, self.dist_coeffs)
+                corners, self.marker_size, self.camera_matrix, self.dist_coeffs
+            )
 
             for i, marker_id in enumerate(ids.flatten()):
                 if marker_id == 64:  # Filter for marker ID 0
@@ -98,7 +108,9 @@ class ArucoDetector(Node):
 
                     # Publish pose
                     self.pose_pub.publish(pose_msg)
-                    self.get_logger().info(f'Detected marker {marker_id} at position {tvec}')
+                    self.get_logger().info(
+                        f"Detected marker {marker_id} at position {tvec}"
+                    )
 
                     # Publish visualization marker
                     marker_msg = Marker()
@@ -119,18 +131,99 @@ class ArucoDetector(Node):
 
                     # Publish TF transform
                     # do all transform math here
-                    t = TransformStamped()
-                    t.header = msg.header
-                    t.header.frame_id = self.camera_name + "_frame"
-                    t.child_frame_id = f'aruco_tag_{marker_id}'
-                    t.transform.translation.x = float(tvec[0])
-                    t.transform.translation.y = float(tvec[1])
-                    t.transform.translation.z = float(tvec[2])
-                    t.transform.rotation.w = float(w)
-                    t.transform.rotation.x = float(x)
-                    t.transform.rotation.y = float(y)
-                    t.transform.rotation.z = float(z)
-                    self.tf_broadcaster.sendTransform(t)
+                    # t = TransformStamped()
+                    # t.header = msg.header
+                    # t.header.frame_id = self.camera_name + "_frame"
+                    # t.child_frame_id = f'aruco_tag_{marker_id}'
+                    # t.transform.translation.x = float(tvec[0])
+                    # t.transform.translation.y = float(tvec[1])
+                    # t.transform.translation.z = float(tvec[2])
+                    # t.transform.rotation.w = float(w)
+                    # t.transform.rotation.x = float(x)
+                    # t.transform.rotation.y = float(y)
+                    # t.transform.rotation.z = float(z)
+                    # self.tf_broadcaster.sendTransform(t)
+
+                    # get absolute position of detected tag
+                    tag = self._tf_buffer.lookup_transform(
+                        "map", f"static_tag_{marker_id}", rclpy.time.Time()
+                    )
+                    trans_base_link = self._tf_buffer.lookup_transform(
+                        "base_link", self.camera_name + "_frame", rclpy.time.Time()
+                    )
+                    # need camera  -> base link transform as well
+                    robot_x = (
+                        tag.translation.x
+                        - pose_msg.pose.position.x
+                        - trans_base_link.translation.x
+                    )
+                    robot_y = (
+                        tag.translation.y
+                        - pose_msg.pose.position.y
+                        - trans_base_link.translation.x
+                    )
+                    robot_z = (
+                        tag.translation.z
+                        - pose_msg.pose.position.z
+                        - trans_base_link.translation.x
+                    )
+
+                    robot_w_rot = (
+                        tag.rotation.w
+                        - pose_msg.pose.orientation.w
+                        - trans_base_link.rotation.w
+                    )
+                    robot_x_rot = (
+                        tag.rotation.x
+                        - pose_msg.pose.orientation.x
+                        - trans_base_link.rotation.w
+                    )
+                    robot_y_rot = (
+                        tag.rotation.y
+                        - pose_msg.pose.orientation.y
+                        - trans_base_link.rotation.w
+                    )
+                    robot_z_rot = (
+                        tag.rotation.z
+                        - pose_msg.pose.orientation.z
+                        - trans_base_link.rotation.w
+                    )
+
+                    pose_msg = PoseStamped()
+                    pose_msg.header = msg.header
+                    pose_msg.header.frame_id = "base_link"
+                    pose_msg.pose.position.x = robot_x
+                    pose_msg.pose.position.y = robot_y
+                    pose_msg.pose.position.z = robot_z
+
+                    pose_msg.pose.orientation.w = robot_w_rot
+                    pose_msg.pose.orientation.x = robot_x_rot
+                    pose_msg.pose.orientation.y = robot_y_rot
+                    pose_msg.pose.orientation.z = robot_z_rot
+
+                    # Publish pose
+                    self.pose_pub.publish(pose_msg)
+                    self.get_logger().info(f"Published backcomputed pose")
+
+                    pose_msg = PoseStamped()
+                    pose_msg.header = msg.header
+                    pose_msg.header.frame_id = self.camera_name + "_frame"
+                    pose_msg.pose.position.x = float(tvec[0])
+                    pose_msg.pose.position.y = float(tvec[1])
+                    pose_msg.pose.position.z = float(tvec[2])
+
+                    # Convert rotation matrix to quaternion
+                    w, x, y, z = self.rotation_matrix_to_quaternion(rot_mat)
+                    pose_msg.pose.orientation.w = float(w)
+                    pose_msg.pose.orientation.x = float(x)
+                    pose_msg.pose.orientation.y = float(y)
+                    pose_msg.pose.orientation.z = float(z)
+
+                    # Publish pose
+                    self.robot_pose_pub.publish(pose_msg)
+                    self.get_logger().info(
+                        f"Detected marker {marker_id} at position {tvec}"
+                    )
 
     def rotation_matrix_to_quaternion(self, R):
         # Convert rotation matrix to quaternion
@@ -161,6 +254,7 @@ class ArucoDetector(Node):
             z = 0.25 * S
         return w, x, y, z
 
+
 def main(args=None):
     rclpy.init(args=args)
     node = ArucoDetector()
@@ -168,5 +262,6 @@ def main(args=None):
     node.destroy_node()
     rclpy.shutdown()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
