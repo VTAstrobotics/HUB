@@ -10,6 +10,9 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 from rcl_interfaces.msg import ParameterDescriptor
+from tf2_ros.buffer import Buffer
+from tf2_ros import LookupException
+
 
 
 
@@ -28,6 +31,7 @@ class ArucoDetector(Node):
 
         self.camera_name = self.get_parameter('camera_name').get_parameter_value().string_value
 
+        self._tf_buffer = Buffer()
         # Camera parameters
         self.camera_matrix = None
         self.dist_coeffs = None
@@ -114,11 +118,11 @@ class ArucoDetector(Node):
                     self.marker_pub.publish(marker_msg)
 
                     # Publish TF transform
+                    # do all transform math here
                     t = TransformStamped()
                     t.header = msg.header
                     t.header.frame_id = self.camera_name + "_frame"
                     t.child_frame_id = f'aruco_tag_{marker_id}'
-
                     t.transform.translation.x = float(tvec[0])
                     t.transform.translation.y = float(tvec[1])
                     t.transform.translation.z = float(tvec[2])
