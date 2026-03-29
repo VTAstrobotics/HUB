@@ -159,37 +159,37 @@ class ArucoDetector(Node):
                     robot_x = (
                         tag.transform.translation.x
                         - pose_msg.pose.position.x
-                        - trans_base_link.translation.x
+                        - trans_base_link.transform.translation.x
                     )
                     robot_y = (
                         tag.transform.translation.y
                         - pose_msg.pose.position.y
-                        - trans_base_link.translation.x
+                        - trans_base_link.transform.translation.y
                     )
                     robot_z = (
                         tag.transform.translation.z
                         - pose_msg.pose.position.z
-                        - trans_base_link.translation.x
+                        - trans_base_link.transform.translation.z
                     )
                     robot_w_rot = (
                         tag.transform.rotation.w
                         - pose_msg.pose.orientation.w
-                        - trans_base_link.rotation.w
+                        - trans_base_link.transform.rotation.w
                     )
                     robot_x_rot = (
                         tag.transform.rotation.x
                         - pose_msg.pose.orientation.x
-                        - trans_base_link.rotation.w
+                        - trans_base_link.transform.rotation.x
                     )
                     robot_y_rot = (
                         tag.transform.rotation.y
                         - pose_msg.pose.orientation.y
-                        - trans_base_link.rotation.w
+                        - trans_base_link.transform.rotation.y
                     )
                     robot_z_rot = (
                         tag.transform.rotation.z
                         - pose_msg.pose.orientation.z
-                        - trans_base_link.rotation.w
+                        - trans_base_link.transform.rotation.z
                     )
 
                     pose_msg = PoseStamped()
