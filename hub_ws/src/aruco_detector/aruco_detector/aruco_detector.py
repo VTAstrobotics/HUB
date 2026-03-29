@@ -10,6 +10,7 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 from rcl_interfaces.msg import ParameterDescriptor
+from tf2_ros.transform_listener import TransformListener
 from tf2_ros.buffer import Buffer
 from tf2_ros import LookupException
 
@@ -36,6 +37,8 @@ class ArucoDetector(Node):
         )
 
         self._tf_buffer = Buffer()
+        self._tf_listener = TransformListener(self._tf_buffer, self)
+
         # Camera parameters
         self.camera_matrix = None
         self.dist_coeffs = None
@@ -154,37 +157,37 @@ class ArucoDetector(Node):
                     )
                     # need camera  -> base link transform as well
                     robot_x = (
-                        tag.translation.x
+                        tag.transform.translation.x
                         - pose_msg.pose.position.x
                         - trans_base_link.translation.x
                     )
                     robot_y = (
-                        tag.translation.y
+                        tag.transform.translation.y
                         - pose_msg.pose.position.y
                         - trans_base_link.translation.x
                     )
                     robot_z = (
-                        tag.translation.z
+                        tag.transform.translation.z
                         - pose_msg.pose.position.z
                         - trans_base_link.translation.x
                     )
                     robot_w_rot = (
-                        tag.rotation.w
+                        tag.transform.rotation.w
                         - pose_msg.pose.orientation.w
                         - trans_base_link.rotation.w
                     )
                     robot_x_rot = (
-                        tag.rotation.x
+                        tag.transform.rotation.x
                         - pose_msg.pose.orientation.x
                         - trans_base_link.rotation.w
                     )
                     robot_y_rot = (
-                        tag.rotation.y
+                        tag.transform.rotation.y
                         - pose_msg.pose.orientation.y
                         - trans_base_link.rotation.w
                     )
                     robot_z_rot = (
-                        tag.rotation.z
+                        tag.transform.rotation.z
                         - pose_msg.pose.orientation.z
                         - trans_base_link.rotation.w
                     )
