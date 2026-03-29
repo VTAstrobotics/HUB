@@ -14,6 +14,10 @@ def generate_launch_description():
         {'name': 'camera_right', 'device': '/dev/video3'},
     ]
 
+
+    ### TODO - need to define base_link to all camera links using the naming convention
+    # "camera_name" + "_link"
+
     nodes = []
 
     for cam in cameras: #spin up n camera nodes with n aruco listeners

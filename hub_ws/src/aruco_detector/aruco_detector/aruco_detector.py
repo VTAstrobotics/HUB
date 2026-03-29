@@ -149,7 +149,7 @@ class ArucoDetector(Node):
                         "map", f"static_tag_{marker_id}", rclpy.time.Time()
                     )
                     trans_base_link = self._tf_buffer.lookup_transform(
-                        "base_link", self.camera_name + "_frame", rclpy.time.Time()
+                        "base_link", self.camera_name + "_link", rclpy.time.Time()
                     )
                     # need camera  -> base link transform as well
                     robot_x = (
