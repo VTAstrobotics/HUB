@@ -41,6 +41,13 @@ public:
     joy_subscriber = this->create_subscription<sensor_msgs::msg::Joy>( // Creating the subscriber to the Joy topic
         "/joy", 10, std::bind(&Distributor::joy_callback, this, _1));
 
+    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr dump_height_publisher; 
+    dump_height_publisher = this->create_publisher<std_msgs::msg::Int32>("/dump_height", 10);
+    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr dump_gate_publisher;
+    dump_gate_publisher = this->create_publisher<std_msgs::msg::Int32>("/dump_gate", 10); 
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr dig_duty_publisher; 
+    dig_duty_publisher = this->create_publisher<std_msgs::msg::Float64>("/dig_duty", 10); 
+
     velocity_publisher = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10); // creates the publisher to the /joy topic
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
@@ -79,9 +86,25 @@ private:
     cmd.angular.z = ang;              // assigning the angular z value to ang
     velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
 
+    if (msg->axes[controls.at(TRANSLATION_CONTROL)] != 0 || msg->axes[controls.at(ROTATION_CONTROL)] != 0) {
+      dump_height_publisher->publish(std_msgs::msg::Int32{static_cast<int>(msg->axes[controls.at(CONVEYOR_FORWARD)] * 100)});
+    } else if (msg->axes[controls.at(CONVEYOR_REVERSE)] != 0) { 
+      dump_gate_publisher->publish(std_msgs::msg::Int32{static_cast<int>(msg->axes[controls.at(CONVEYOR_REVERSE)] * 100)});
+    } else {
+      dump_height_publisher->publish(std_msgs::msg::Int32{0});
+      dump_gate_publisher->publish(std_msgs::msg::Int32{0});
+    }
+    
+      dig_duty_publisher->publish(std_msgs::msg::Float64{msg->axes  [controls.at(CONVEYOR_FORWARD)] * 100});  
+
+
+
     stopwatch.reset();
   }
+
+
   void timer_callback()
+
   {
     if (stopwatch.elapsedMilliseconds() > TIMEOUT * 1000)
     {
