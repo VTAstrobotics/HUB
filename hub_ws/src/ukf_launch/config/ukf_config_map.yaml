@@ -1,4 +1,4 @@
-ukf_node_gps:
+ukf_node_map:
   ros__parameters:
     frequency: 15.0
     sensor_timeout: 1.9
@@ -29,7 +29,7 @@ ukf_node_gps:
     # imu0_linear_acceleration_rejection_threshold: 100
 
 
-    odom0: /odometry/gps
+    odom0: /odometry/filtered_aruco
     odom0_config: [ true,  true,  false,    # x y z, removing z for now
                     false, false, false,   # roll pitch yaw
                     false, false, false,   # vx vy vz
