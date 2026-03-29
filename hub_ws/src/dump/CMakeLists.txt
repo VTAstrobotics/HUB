@@ -18,7 +18,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 
 add_executable(dump_auto_node src/dump_auto_node.cpp )
 
-ament_target_dependencies(drive_node
+ament_target_dependencies(dump_auto_node
   rclcpp
   geometry_msgs
   std_msgs
@@ -30,9 +30,9 @@ ament_target_dependencies(drive_node
   tf2_geometry_msgs
 )
 
-target_link_libraries(drive_node motor_control::motor_control_nodes)
+target_link_libraries(dump_auto_node motor_control::motor_control_nodes)
 
-install(TARGETS drive_node
+install(TARGETS dump_auto_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -21,7 +21,7 @@ def generate_launch_description():
     name = "kraken_control_node",
     parameters=[{"motor_name": "dump_door"},
                 {"can_interface": "can1"},
-                {"can_id": 46},
+                {"can_id": 11},
                 {"control_topic": "/dump_door/control"},
                 {"status_topic": "/dump_door/status"},
                 {"health_topic": "/dump_door/health"}],
