@@ -11,8 +11,8 @@ public:
     DumpTeleop() : Node("dump_teleop_node")
     {
         // Initialize motors
-        bucket_motor = std::make_shared<Motor>("dump_bucket", this);
-        actuator_motor = std::make_shared<Motor>("dump_actuator", this);
+        bucket_motor = std::make_shared<Motor>("dump_bucket_teleop", this);
+        actuator_motor = std::make_shared<Motor>("dump_actuator_teleop", this);
 
         // Subscriber for bucket deposition motor duty cycle
         bucket_subscriber = this->create_subscription<std_msgs::msg::Float32>(
