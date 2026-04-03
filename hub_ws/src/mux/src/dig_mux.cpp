@@ -52,7 +52,7 @@ private:
     {
         if (control_state != AUTO)
             return;
-        dig_motor->send_command(*msg);
+        dig_motor->send_command(*msg); //handle multiplexing the command type in motor_control
     }
 
     void dig_teleop_callback(motor_messages::msg::Command::SharedPtr msg)
