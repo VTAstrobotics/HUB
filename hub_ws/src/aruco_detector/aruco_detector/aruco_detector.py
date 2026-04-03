@@ -170,7 +170,7 @@ class ArucoDetector(Node):
 
                     # get absolute position of detected tag
                     tag_map = self._tf_buffer.lookup_transform(
-                        f"static_tag_{marker_id}", "map", rclpy.time.Time()
+                        "map", f"static_tag_{marker_id}", rclpy.time.Time()
                     )
                     camera_base_link = self._tf_buffer.lookup_transform(
                         self.camera_name + "_link", "base_link", rclpy.time.Time()
