@@ -13,6 +13,8 @@ from rcl_interfaces.msg import ParameterDescriptor
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros.buffer import Buffer
 from tf2_ros import LookupException
+import tf_transformations
+
 
 
 # TODO modify so paramaterize camera topic and name
@@ -66,6 +68,17 @@ class ArucoDetector(Node):
         self.camera_matrix = np.array(msg.k).reshape(3, 3)
         self.dist_coeffs = np.array(msg.d)
         self.get_logger().info("Received camera info")
+
+    
+    def transform_to_matrix(self, ts):
+        translation = [ts.transform.translation.x, ts.transform.translation.y, ts.transform.translation.z]
+        rotation = [ts.transform.rotation.x, ts.transform.rotation.y, ts.transform.rotation.z, ts.transform.rotation.w]
+
+        mat = tf_transformations.concatenate_matrices(
+            tf_transformations.translation_matrix(translation),
+            tf_transformations.quaternion_matrix(rotation)
+        )
+        return mat
 
     def image_callback(self, msg):
         if self.camera_matrix is None or self.dist_coeffs is None:
@@ -135,67 +148,43 @@ class ArucoDetector(Node):
 
                     # Publish TF transform
                     # do all transform math here
-                    # t = TransformStamped()
-                    # t.header = msg.header
-                    # t.header.frame_id = self.camera_name + "_frame"
-                    # t.child_frame_id = f'aruco_tag_{marker_id}'
-                    # t.transform.translation.x = float(tvec[0])
-                    # t.transform.translation.y = float(tvec[1])
-                    # t.transform.translation.z = float(tvec[2])
-                    # t.transform.rotation.w = float(w)
-                    # t.transform.rotation.x = float(x)
-                    # t.transform.rotation.y = float(y)
-                    # t.transform.rotation.z = float(z)
+                    t = TransformStamped()
+                    t.header = msg.header
+                    t.header.frame_id = self.camera_name + "_frame"
+                    t.child_frame_id = f'aruco_tag_{marker_id}'
+                    t.transform.translation.x = float(tvec[0])
+                    t.transform.translation.y = float(tvec[1])
+                    t.transform.translation.z = float(tvec[2])
+                    t.transform.rotation.w = float(w)
+                    t.transform.rotation.x = float(x)
+                    t.transform.rotation.y = float(y)
+                    t.transform.rotation.z = float(z)
                     # self.tf_broadcaster.sendTransform(t)
 
                     # get absolute position of detected tag
-                    tag = self._tf_buffer.lookup_transform(
-                        "map", f"static_tag_{marker_id}", rclpy.time.Time()
+                    tag_map = self._tf_buffer.lookup_transform(
+                        f"static_tag_{marker_id}", "map", rclpy.time.Time()
                     )
-                    trans_base_link = self._tf_buffer.lookup_transform(
-                        "base_link", self.camera_name + "_link", rclpy.time.Time()
+                    camera_base_link = self._tf_buffer.lookup_transform(
+                       self.camera_name + "_link",  "base_link", rclpy.time.Time()
                     )
                     # need camera  -> base link transform as well
-                    robot_x = (
-                        tag.transform.translation.x
-                        - pose_msg.pose.position.x
-                        - trans_base_link.transform.translation.x
-                    )
-                    robot_y = (
-                        tag.transform.translation.y
-                        - pose_msg.pose.position.y
-                        - trans_base_link.transform.translation.y
-                    )
-                    robot_z = (
-                        tag.transform.translation.z
-                        - pose_msg.pose.position.z
-                        - trans_base_link.transform.translation.z
-                    )
-                    robot_w_rot = (
-                        tag.transform.rotation.w
-                        - pose_msg.pose.orientation.w
-                        - trans_base_link.transform.rotation.w
-                    )
-                    robot_x_rot = (
-                        tag.transform.rotation.x
-                        - pose_msg.pose.orientation.x
-                        - trans_base_link.transform.rotation.x
-                    )
-                    robot_y_rot = (
-                        tag.transform.rotation.y
-                        - pose_msg.pose.orientation.y
-                        - trans_base_link.transform.rotation.y
-                    )
-                    robot_z_rot = (
-                        tag.transform.rotation.z
-                        - pose_msg.pose.orientation.z
-                        - trans_base_link.transform.rotation.z
-                    )
+
+                    tag_from_map_matrix = self.transform_to_matrix(tag_map) #drone math.
+                    camera_from_base_link_matrix = self.transform_to_matrix(camera_base_link)
+
+                    camera_tag_matrix = self.transform_to_matrix(t)
+                    tag_camera_matrix = np.linalg.inv(camera_tag_matrix)
+
+                    base_link_matrix = np.dot(np.dot(tag_from_map_matrix, tag_camera_matrix), camera_from_base_link_matrix)
+
+                    translation = tf_transformations.translation_from_matrix(base_link_matrix)
+                    quaternion = tf_transformations.quaternion_from_matrix(base_link_matrix)
 
                     pose_msg = PoseStamped()
                     pose_msg.header = msg.header
                     pose_msg.header.frame_id = "base_link"
-                    pose_msg.pose.position.x = robot_x
+                    pose_msg.pose.position.x = translation.
                     pose_msg.pose.position.y = robot_y
                     pose_msg.pose.position.z = robot_z
 
