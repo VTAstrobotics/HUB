@@ -175,8 +175,8 @@ class ArucoDetector(Node):
                     camera_base_link = self._tf_buffer.lookup_transform(
                         self.camera_name + "_link", "base_link", rclpy.time.Time()
                     )
-                    # need camera  -> base link transform as well
 
+                    # need camera  -> base link transform as well
                     tag_from_map_matrix = self.transform_to_matrix(
                         tag_map
                     )  # drone math.
