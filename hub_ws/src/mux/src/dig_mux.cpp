@@ -4,13 +4,6 @@
 #include "motor_messages/msg/command.hpp"
 #include "motor.hpp"
 
-enum Autonomy_State
-{
-    DIG,
-    DUMP,
-    HOME
-};
-
 enum Control_Signal
 {
     TELEOP,
@@ -59,6 +52,7 @@ private:
     {
         if (control_state != AUTO)
             return;
+        dig_motor->send_command(*msg);
     }
 
     void dig_teleop_callback(motor_messages::msg::Command::SharedPtr msg)
