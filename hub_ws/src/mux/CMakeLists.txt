@@ -11,9 +11,11 @@ find_package(rclcpp REQUIRED)
 
 find_package(std_msgs REQUIRED)
 
-add_executable(dig_mux_node src/dig_mux.cpp)
+find_package(motor_messages REQUIRED)
 
-add_executable(dump_mux_node src/dig_mux.cpp)
+add_executable(dig_mux_node src/dig_mux.cpp src/motor.cpp)
+
+add_executable(dump_mux_node src/dig_mux.cpp src/motor.cpp)
 
 
 target_include_directories(dig_mux_node PRIVATE
@@ -27,11 +29,13 @@ target_include_directories(dump_mux_node PRIVATE
 ament_target_dependencies(dig_mux_node
   rclcpp
   std_msgs
+  motor_messages
 )
 
 ament_target_dependencies(dump_mux_node
   rclcpp
   std_msgs
+  motor_messages
 )
 
 install(TARGETS dig_mux_node
