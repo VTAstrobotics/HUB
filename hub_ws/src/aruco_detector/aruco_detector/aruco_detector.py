@@ -184,14 +184,14 @@ class ArucoDetector(Node):
                     pose_msg = PoseStamped()
                     pose_msg.header = msg.header
                     pose_msg.header.frame_id = "base_link"
-                    pose_msg.pose.position.x = translation.
-                    pose_msg.pose.position.y = robot_y
-                    pose_msg.pose.position.z = robot_z
+                    pose_msg.pose.position.x = translation.x
+                    pose_msg.pose.position.y = translation.y
+                    pose_msg.pose.position.z = translation.z
 
-                    pose_msg.pose.orientation.w = robot_w_rot
-                    pose_msg.pose.orientation.x = robot_x_rot
-                    pose_msg.pose.orientation.y = robot_y_rot
-                    pose_msg.pose.orientation.z = robot_z_rot
+                    pose_msg.pose.orientation.w = quaternion.w
+                    pose_msg.pose.orientation.x = quaternion.x
+                    pose_msg.pose.orientation.y = quaternion.y
+                    pose_msg.pose.orientation.z = quaternion.z
 
                     # Publish pose
                     self.pose_pub.publish(pose_msg)
