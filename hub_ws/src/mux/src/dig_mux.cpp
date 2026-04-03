@@ -52,7 +52,8 @@ private:
     {
         if (control_state != AUTO)
             return;
-        dig_motor->send_command(*msg); //handle multiplexing the command type in motor_control
+        dig_motor->send_command(*msg); // handle multiplexing the command type in motor_control
+        RCLCPP_INFO(this->get_logger(), "AUTO COMMAND: DIG");
     }
 
     void dig_teleop_callback(motor_messages::msg::Command::SharedPtr msg)
@@ -61,6 +62,7 @@ private:
             return;
 
         dig_motor->send_command(*msg);
+        RCLCPP_INFO(this->get_logger(), "TELEOP COMMAND: DIG");
     }
 };
 
