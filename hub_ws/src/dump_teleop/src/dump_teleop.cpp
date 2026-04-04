@@ -16,12 +16,12 @@ public:
 
         // Subscriber for bucket deposition motor duty cycle
         bucket_subscriber = this->create_subscription<std_msgs::msg::Float32>(
-            "/dump/bucket_duty", 10,
-            std::bind(&DumpTeleop::bucket_callback, this, _1));
+           "/dump_bucket_teleop", 10,
+           std::bind(&DumpTeleop::bucket_callback, this, _1));
 
         // Subscriber for linear actuator (dump angle) duty cycle
         actuator_subscriber = this->create_subscription<std_msgs::msg::Float32>(
-            "/dump/actuator_duty", 10,
+            "/dump_actuator_teleop", 10,
             std::bind(&DumpTeleop::actuator_callback, this, _1));
 
         RCLCPP_INFO(this->get_logger(), "Dump Teleop Node has started.");
