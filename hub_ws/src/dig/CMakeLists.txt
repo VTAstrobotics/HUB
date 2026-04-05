@@ -14,7 +14,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_export_dependencies(rosidl_default_runtime)
 
 add_executable(dig_action_server src/dig_action_server.cpp)
-ament_target_dependencies(motor_action_server
+ament_target_dependencies(dig_action_server
   rclcpp
   rclcpp_action
 )

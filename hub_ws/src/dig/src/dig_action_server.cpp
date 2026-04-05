@@ -4,25 +4,25 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "dig/action/MotorControl.hpp"
+#include "dig/action/motor_control.hpp"
 
 using namespace std::chrono_literals;
 
-class MotorActionServer : public rclcpp::Node
+class dig_action_server : public rclcpp::Node
 {
 public:
     using MotorControl = dig::action::MotorControl;
     using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
-    MotorActionServer()
+    dig_action_server()
     : Node("dig_action_server")
     {
         action_server_ = rclcpp_action::create_server<MotorControl>(
             this,
             "motor_control",
-            std::bind(&MotorActionServer::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-            std::bind(&MotorActionServer::handle_cancel, this, std::placeholders::_1),
-            std::bind(&MotorActionServer::handle_accepted, this, std::placeholders::_1)
+            std::bind(&dig_action_server::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&dig_action_server::handle_cancel, this, std::placeholders::_1),
+            std::bind(&dig_action_server::handle_accepted, this, std::placeholders::_1)
         );
     }
 
@@ -57,7 +57,7 @@ private:
     // When goal is accepted
     void handle_accepted(const std::shared_ptr<GoalHandleMotor> goal_handle)
     {
-        std::thread{std::bind(&MotorActionServer::execute, this, std::placeholders::_1), goal_handle}.detach();
+        std::thread{std::bind(&dig_action_server::execute, this, std::placeholders::_1), goal_handle}.detach();
     }
 
     // Execution logic
@@ -130,7 +130,7 @@ private:
 int main(int argc, char ** argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<MotorActionServer>();
+    auto node = std::make_shared<dig_action_server>();
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
