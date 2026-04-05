@@ -29,14 +29,13 @@ public:
 private:
     rclcpp_action::Server<MotorControl>::SharedPtr action_server_;
 
-    // Handle incoming goal
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID & uuid,
         std::shared_ptr<const MotorControl::Goal> goal)
     {
         RCLCPP_INFO(this->get_logger(), "Received goal request");
 
-        // TODO: Validate goal if needed
+        // Check if goal is valid
         (void)uuid;
 
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -48,19 +47,17 @@ private:
     {
         RCLCPP_INFO(this->get_logger(), "Received cancel request");
 
-        // TODO: Stop motor safely here
+        // Cancel motor movement
 
         (void)goal_handle;
         return rclcpp_action::CancelResponse::ACCEPT;
     }
 
-    // When goal is accepted
     void handle_accepted(const std::shared_ptr<GoalHandleMotor> goal_handle)
     {
         std::thread{std::bind(&dig_action_server::execute, this, std::placeholders::_1), goal_handle}.detach();
     }
 
-    // Execution logic
     void execute(const std::shared_ptr<GoalHandleMotor> goal_handle)
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal");
@@ -70,48 +67,37 @@ private:
         auto result = std::make_shared<MotorControl::Result>();
 
         double target = goal->target_position;
-        double max_speed = goal->max_speed;
 
-        // TODO: Initialize motor control here
-        // Example: set motor speed limit, enable driver, etc.
+        // Initialize motors
 
         rclcpp::Rate loop_rate(10);
 
         while (rclcpp::ok())
         {
-            // Check if canceled
+            // Cancel check
             if (goal_handle->is_canceling())
             {
-                // TODO: Stop motor immediately
+                // Stop motor
                 result->success = false;
-                result->final_position = 0.0; // TODO: read actual position
+                result->final_position = 0.0; // Change to sensor position
 
                 goal_handle->canceled(result);
                 RCLCPP_INFO(this->get_logger(), "Goal canceled");
                 return;
             }
 
-            // ============================
-            // TODO: MOTOR CONTROL LOGIC
-            // ============================
-            // - Read current motor position from sensor
-            // - Compute control (PID, etc.)
-            // - Send command to motor driver
-            // ============================
+            // This is all temp and needs to be added
 
-            double current_position = 0.0;  // TODO: replace with sensor reading
-            double current_speed = 0.0;     // TODO: replace with sensor reading
+            double current_position = 0.0;  // Change to CANCoder reading
 
             // Populate feedback
             feedback->current_position = current_position;
-            feedback->current_speed = current_speed;
 
             goal_handle->publish_feedback(feedback);
 
-            // Exit condition (target reached)
             if (std::abs(current_position - target) < 0.01)
             {
-                // TODO: Stop motor
+                // Kill motor
                 break;
             }
 
@@ -120,7 +106,7 @@ private:
 
         // Final result
         result->success = true;
-        result->final_position = 0.0; // TODO: read final position
+        result->final_position = 0.0; // Add final positon here
 
         goal_handle->succeed(result);
         RCLCPP_INFO(this->get_logger(), "Goal succeeded");
