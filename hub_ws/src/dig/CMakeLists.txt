@@ -7,19 +7,49 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
-add_executable(dig_node src/dig_node.cpp)
-target_include_directories(dig_node PUBLIC
+find_package(action_interfaces REQUIRED)
+find_package(phoenix6 REQUIRED)
+find_package(sparkcan REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(state_messages REQUIRED)
+find_package(state_messages_utils REQUIRED)
+
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+find_package(unique_identifier_msgs REQUIRED)
+
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+message(STATUS "Include directories: ${CMAKE_INCLUDE_PATH}")
+
+add_library(Dig_action SHARED src/dig_server.cpp)
+target_include_directories(Dig_action PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(dig_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+  $<INSTALL_INTERFACE:include>
+)
+target_compile_definitions(Dig_action PRIVATE
+"DIG_ACTION_CPP_BUILDING_DLL")
 
-install(TARGETS dig_node
-  DESTINATION lib/${PROJECT_NAME})
+ament_target_dependencies(Dig_action
+  "action_interfaces"
+  "phoenix6"
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components"
+  "sparkcan"
+  "state_messages"
+  "state_messages_utils"
+  "std_msgs"
+  )
+rclcpp_components_register_node(Dig_action PLUGIN "dig_server::DigActionServer" EXECUTABLE DigActionServer)
 
+add_definitions(-DUNIT_LIB_DISABLE_FMT -DUNIT_LIB_ENABLE_IOSTREAM)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -31,5 +61,15 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+install(DIRECTORY
+launch
+config
+DESTINATION share/${PROJECT_NAME}/
+)
 
+install(TARGETS
+  Dig_action
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 ament_package()
