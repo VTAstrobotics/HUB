@@ -1,19 +1,15 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/float32.hpp"
-
-enum Autonomy_State
-{
-    DUMP,
-    HOME
-};
+#include "motor_messages/msg/command.hpp"
+#include "motor.hpp"
 
 enum Control_Signal
 {
     TELEOP,
     AUTO
 };
-
+//updated dump mux.
 using std::placeholders::_1;
 
 class DumpMux : public rclcpp::Node
@@ -21,86 +17,81 @@ class DumpMux : public rclcpp::Node
 public:
     DumpMux() : Node("dump_mux")
     {
-        autonomy_subscriber = this->create_subscription<std_msgs::msg::Int32>(
-            "/dump_autonomy_mux", 10, std::bind(&DumpMux::dump_autonomy_callback, this, _1));
+        actuator_autonomy_subscriber = this->create_subscription<motor_messages::msg::Command>(
+            "/dump_actuator_motor_auto", 10, std::bind(&DumpMux::dump_actuator_autonomy_callback, this, _1));
 
-        actuator_teleop_subscriber = this->create_subscription<std_msgs::msg::Float32>(
-            "/dump_actuator_teleop_mux", 10, std::bind(&DumpMux::dump_actuator_teleop_callback, this, _1));
+        actuator_teleop_subscriber = this->create_subscription<motor_messages::msg::Command>(
+            "/dump_actuator_motor_teleop", 10, std::bind(&DumpMux::dump_actuator_teleop_callback, this, _1));
 
-        door_teleop_subscriber = this->create_subscription<std_msgs::msg::Float32>(
-            "/dump_door_teleop_mux", 10, std::bind(&DumpMux::dump_door_teleop_callback, this, _1));
+        door_autonomy_subscriber = this->create_subscription<motor_messages::msg::Command>(
+            "/dump_door_motor_auto", 10, std::bind(&DumpMux::dump_door_autonomy_callback, this, _1));
+
+        door_teleop_subscriber = this->create_subscription<motor_messages::msg::Command>(
+            "/dump_door_motor_teleop", 10, std::bind(&DumpMux::dump_door_teleop_callback, this, _1));
 
         control_signal = this->create_subscription<std_msgs::msg::Int32>(
             "/dump_control_signal", 10, std::bind(&DumpMux::dump_control_signal_callback, this, _1));
 
-        actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
-        door_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_door_teleop", 10);
+        dump_actuator_motor = std::make_shared<Motor>("dump_actuator_motor", this);
+        dump_door_motor     = std::make_shared<Motor>("dump_door_motor", this);
 
         control_state = TELEOP;
     }
 
 private:
-    // Subscribers
-    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr autonomy_subscriber;
-    rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr actuator_teleop_subscriber;
-    rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr door_teleop_subscriber;
+    // Actuator subscribers
+    rclcpp::Subscription<motor_messages::msg::Command>::SharedPtr actuator_autonomy_subscriber;
+    rclcpp::Subscription<motor_messages::msg::Command>::SharedPtr actuator_teleop_subscriber;
+
+    // Door subscribers
+    rclcpp::Subscription<motor_messages::msg::Command>::SharedPtr door_autonomy_subscriber;
+    rclcpp::Subscription<motor_messages::msg::Command>::SharedPtr door_teleop_subscriber;
+
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr control_signal;
 
-    // Publishers
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr actuator_publisher;
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr door_publisher;
+    std::shared_ptr<Motor> dump_actuator_motor;
+    std::shared_ptr<Motor> dump_door_motor;
 
     Control_Signal control_state;
-    // Next TBD: define dump action client
+    // TODO: define dump action client
 
     void dump_control_signal_callback(std_msgs::msg::Int32::SharedPtr msg)
     {
         if (msg->data < TELEOP || msg->data > AUTO)
             return;
-
         control_state = static_cast<Control_Signal>(msg->data);
     }
 
-    void dump_autonomy_callback(std_msgs::msg::Int32::SharedPtr msg)
+    void dump_actuator_autonomy_callback(motor_messages::msg::Command::SharedPtr msg)
     {
         if (control_state != AUTO)
             return;
-
-        if (msg->data < DUMP || msg->data > HOME)
-        {
-            RCLCPP_WARN(this->get_logger(), "Invalid autonomy state: %d", msg->data);
-            return;
-        }
-        Autonomy_State auto_state = static_cast<Autonomy_State>(msg->data);
-
-        switch (auto_state)
-        {
-        case DIG:
-            RCLCPP_INFO(this->get_logger(), "AUTO: DIG");
-            break;
-        case DUMP:
-            RCLCPP_INFO(this->get_logger(), "AUTO: DUMP");
-            break;
-        case HOME:
-            RCLCPP_INFO(this->get_logger(), "AUTO: HOME");
-            break;
-        default:
-            break;
-        }
+        dump_actuator_motor->send_command(*msg);
+        RCLCPP_INFO(this->get_logger(), "AUTO COMMAND: DUMP ACTUATOR");
     }
 
-    void dump_actuator_teleop_callback(std_msgs::msg::Float32::SharedPtr msg)
+    void dump_actuator_teleop_callback(motor_messages::msg::Command::SharedPtr msg)
     {
         if (control_state != TELEOP)
             return;
-        actuator_publisher->publish(*msg);
+        dump_actuator_motor->send_command(*msg);
+        RCLCPP_INFO(this->get_logger(), "TELEOP COMMAND: DUMP ACTUATOR");
     }
 
-    void dump_door_teleop_callback(std_msgs::msg::Float32::SharedPtr msg)
+    void dump_door_autonomy_callback(motor_messages::msg::Command::SharedPtr msg)
+    {
+        if (control_state != AUTO)
+            return;
+        dump_door_motor->send_command(*msg);
+        RCLCPP_INFO(this->get_logger(), "AUTO COMMAND: DUMP DOOR");
+    }
+
+    void dump_door_teleop_callback(motor_messages::msg::Command::SharedPtr msg)
     {
         if (control_state != TELEOP)
             return;
-        door_publisher->publish(*msg);
+        dump_door_motor->send_command(*msg);
+        RCLCPP_INFO(this->get_logger(), "TELEOP COMMAND: DUMP DOOR");
     }
 };
 
