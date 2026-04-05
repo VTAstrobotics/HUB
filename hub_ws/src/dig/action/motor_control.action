@@ -1,0 +1,13 @@
+# Goal
+float64 target_position
+float64 max_speed
+
+---
+# Result
+bool success
+float64 final_position
+
+---
+# Feedback
+float64 current_position
+float64 current_speed
