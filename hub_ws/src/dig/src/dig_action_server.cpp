@@ -4,14 +4,14 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "your_package_name/action/motor_control.hpp"
+#include "dig/action/motor_control.hpp"
 
 using namespace std::chrono_literals;
 
-class dig_action_server : public rclcpp::Node
+class MotorActionServer : public rclcpp::Node
 {
 public:
-    using MotorControl = your_package_name::action::MotorControl;
+    using MotorControl = dig::action::MotorControl;
     using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
     MotorActionServer()
