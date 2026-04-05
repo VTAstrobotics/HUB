@@ -7,34 +7,45 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(motor_messages REQUIRED)
 find_package(motor_control REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
-add_executable(dump_auto_node src/dump_auto_node.cpp )
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/Dump.action"
+)
 
-ament_target_dependencies(dump_auto_node
+add_library(action_server SHARED
+  src/dump_auto_action_server.cpp)
+
+target_compile_definitions(action_server
+  PRIVATE "ACTION_TUTORIALS_CPP_BUILDING_DLL")
+
+ament_target_dependencies(action_server
   rclcpp
-  geometry_msgs
-  std_msgs
-  nav_msgs
-  sensor_msgs
+  rclcpp_action
+  rclcpp_components
   motor_messages
   motor_control
-  tf2
-  tf2_geometry_msgs
 )
 
-target_link_libraries(dump_auto_node motor_control::motor_control_nodes)
+rosidl_target_interfaces(action_server
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
-install(TARGETS dump_auto_node
-  DESTINATION lib/${PROJECT_NAME}
-)
+rclcpp_components_register_node(action_server
+  PLUGIN "DumpAutoActionServer"
+  EXECUTABLE dump_auto_action_server)
+
+target_link_libraries(action_server
+  motor_control::motor_control_nodes)
+
+install(TARGETS
+  action_server
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
