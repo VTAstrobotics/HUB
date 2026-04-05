@@ -4,7 +4,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "dig/action/motor_control.hpp"
+#include "dig/action/MotorControl.hpp"
 
 using namespace std::chrono_literals;
 

@@ -8,7 +8,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 # Generate action
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/motor_control.action"
+  "action/MotorControl.action"
 )
 
 ament_export_dependencies(rosidl_default_runtime)
