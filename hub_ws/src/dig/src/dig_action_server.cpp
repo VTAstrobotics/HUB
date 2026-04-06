@@ -4,15 +4,26 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
+
 #include "dig/action/motor_control.hpp"
 
+#include "motor_messages/msg/command.hpp"
+#include "motor_messages/msg/feedback.hpp"
+
+#define DIG_DEPOSIT_POSITION 0
+#define DIG_COLLECT_POSITION 0
+#define DIG_STOW_POSITION 0
+
+#define DIG_SPEED 0.1
+
 using namespace std::chrono_literals;
+using MotorControl = dig::action::MotorControl;
+using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
 class dig_action_server : public rclcpp::Node
 {
 public:
-    using MotorControl = dig::action::MotorControl;
-    using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
     dig_action_server()
     : Node("dig_action_server")
