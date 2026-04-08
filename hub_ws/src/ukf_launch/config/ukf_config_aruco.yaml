@@ -21,7 +21,7 @@ ukf_node_aruco:
 
 
     pose0: /aruco_pose_camera_front
-    pose0_config: [ true, true, true,   # x y z (
+    pose0_config: [true, true, true,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
                    false, false,  false,   # vroll vpitch vyaw
@@ -73,7 +73,7 @@ ukf_node_aruco:
 
 
     pose3: /aruco_pose_camera_rear
-    pose3_config: [ true, true, true,   # x y z (
+    pose3_config: [ true, true, true,   # x y z 
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
                    false, false,  false,   # vroll vpitch vyaw

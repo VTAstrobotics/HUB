@@ -30,8 +30,8 @@ ukf_node_map:
 
 
     odom0: /odometry/filtered_aruco
-    odom0_config: [ true,  true,  false,    # x y z, removing z for now
-                    false, false, false,   # roll pitch yaw
+    odom0_config: [ true,  true,  true,    # x y z, removing z for now
+                    false, false, true,   # roll pitch yaw
                     false, false, false,   # vx vy vz
                     false, false, false,   # vroll vpitch vyaw
                     false, false, false ]  # ax ay az
