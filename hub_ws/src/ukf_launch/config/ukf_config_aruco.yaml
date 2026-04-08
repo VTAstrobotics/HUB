@@ -21,10 +21,10 @@ ukf_node_aruco:
 
 
     pose0: /aruco_pose_camera_front
-    pose0_config: [ false, false, false,   # x y z (
+    pose0_config: [ true, true, true,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
-                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false,   # vroll vpitch vyaw
                    false, false,  false ]  # ax ay az (linear accel)
 
     pose0_relative:      false
@@ -38,10 +38,10 @@ ukf_node_aruco:
 
 
     pose1: /aruco_pose_camera_left
-    pose1_config: [ false, false, false,   # x y z (
+    pose1_config: [ true, true, true,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
-                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false,   # vroll vpitch vyaw
                    false, false,  false ]  # ax ay az (linear accel)
 
     pose1_relative:      false
@@ -55,10 +55,10 @@ ukf_node_aruco:
 
 
     pose2: /aruco_pose_camera_right
-    pose2_config: [ false, false, false,   # x y z (
+    pose2_config: [ true, true, true,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
-                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false,   # vroll vpitch vyaw
                    false, false,  false ]  # ax ay az (linear accel)
 
     pose2_relative:      false
@@ -73,10 +73,10 @@ ukf_node_aruco:
 
 
     pose3: /aruco_pose_camera_rear
-    pose3_config: [ false, false, false,   # x y z (
-                  false, false,  true,   # roll pitch yaw
+    pose3_config: [ true, true, true,   # x y z (
+                   false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
-                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false,   # vroll vpitch vyaw
                    false, false,  false ]  # ax ay az (linear accel)
 
     pose3_relative:      false
