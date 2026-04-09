@@ -7,6 +7,9 @@
 #include "motor_messages/msg/command.hpp"
 #include "motor_messages/msg/feedback.hpp"
 
+#include <thread>
+#include <cmath>
+
 // Placeholder!, not done yet
 #define DIG_DEPOSIT_POSITION 0
 #define DIG_COLLECT_POSITION 0
@@ -30,8 +33,8 @@ class dig_action_server : public rclcpp::Node
 {
 public:
 
-    dig_action_server()
-    : Node("dig_action_server")
+    dig_action_server (const rclcpp::NodeOptions & options)
+        : Node("dig_action_server")
     {
         dig_action_server = rclcpp_action::create_server<MotorControl>(
             this,
@@ -40,7 +43,7 @@ public:
             std::bind(&dig_action_server::handle_cancel, this, std::placeholders::_1),
             std::bind(&dig_action_server::handle_accepted, this, std::placeholders::_1)
 
-            door_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>("/dig/status", 10, std::bind(&DumpAutoActionServer::dig_status_callback, this, _1));
+            door_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>("/dig/status", 10, std::bind(&dig_action_server::dig_status_callback, this, _1));
 
             dig_publisher = this->create_publisher<motor_messages::msg::Command>("/dig/control", 4);
             
@@ -88,12 +91,12 @@ private:
     {
         RCLCPP_INFO(this->get_logger(), "Executing goal");
 
-        DigPosition commandedPosition = static_cast<DumpPosition>(goal_handle->get_goal()->target_position);
+        DigPosition commandedPosition = static_cast<DigPosition>(goal_handle->get_goal()->target_position);
         auto feedback = std::make_shared<MotorControl::Feedback>();
         auto result = std::make_shared<MotorControl::Result>();
 
         auto & positions = feedback->positions;
-        positions.push_back(dig_position)
+        positions.push_back(dig_position);
         rclcpp::Rate loop_rate(10);
 
         while (true)
@@ -112,6 +115,7 @@ private:
             goal_handle->publish_feedback(feedback);
             RCLCPP_INFO(this->get_logger(), "Publish feedback");
 
+            motor_messages::msg::Command dig_msg;
             bool dig_complete = false;
 
             switch (commandedPosition)
@@ -124,7 +128,7 @@ private:
                     }
                     else
                     {
-                        doig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.dutycycle.data = -DUTY_CYCLE;
                     }
                     break;
                 case COLLECT:
@@ -135,7 +139,7 @@ private:
                     }
                     else
                     {
-                        doig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.dutycycle.data = -DUTY_CYCLE;
                     }
                     break;
                 case DEPOSIT:
@@ -146,13 +150,13 @@ private:
                     }
                     else
                     {
-                        doig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.dutycycle.data = -DUTY_CYCLE;
                     }
                     break;
                 
             }
 
-            dig_duty_publisher->publish(dig_msg);
+            dig_publisher->publish(dig_msg);
             if (dig_complete) break;
             loop_rate.sleep();
             
