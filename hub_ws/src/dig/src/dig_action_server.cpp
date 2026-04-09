@@ -128,7 +128,7 @@ private:
                     }
                     else
                     {
-                        dig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.position.data = DIG_STOW_POSITION;
                     }
                     break;
                 case COLLECT:
@@ -139,7 +139,7 @@ private:
                     }
                     else
                     {
-                        dig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.position.data = DIG_COLLECT_POSITION;
                     }
                     break;
                 case DEPOSIT:
@@ -150,7 +150,7 @@ private:
                     }
                     else
                     {
-                        dig_msg.dutycycle.data = -DUTY_CYCLE;
+                        dig_msg.position.data = DIG_DEPOSIT_POSITION;
                     }
                     break;
                 
