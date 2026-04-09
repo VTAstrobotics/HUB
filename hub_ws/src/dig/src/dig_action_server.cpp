@@ -10,7 +10,7 @@
 #include <thread>
 #include <cmath>
 
-// Placeholder!, not done yet
+// Placeholder, not done yet
 #define DIG_DEPOSIT_POSITION 0
 #define DIG_COLLECT_POSITION 0
 #define DIG_STOW_POSITION 0
