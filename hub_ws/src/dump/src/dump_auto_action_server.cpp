@@ -1,6 +1,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
+#include <mutex>
+#include <cmath>
+
 
 #include "dump/action/dump.hpp"
 
@@ -64,13 +67,30 @@ private:
     float door_position = 0;
     float actuator_position = 0;
 
+    rclcpp::Time last_goal_time;
+    rclcpp::Duration min_interval{1, 0};
+
+    std::shared_ptr<GoalHandleDump> active_goal;
+    std::mutex goal_mutex;
+
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID & uuid,
         std::shared_ptr<const Dump::Goal> goal)
     {
-        RCLCPP_INFO(this->get_logger(), "Received goal request with goal %d", goal->goal_position);
         (void)uuid;
-        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+
+        std::lock_guard<std::mutex> lock(goal_mutex);
+
+        auto now = this->now();
+        if ((now - last_goal_time) < min_interval) {
+            RCLCPP_WARN(this->get_logger(), "Goal rejected: too soon");
+            return rclcpp_action::GoalResponse::REJECT;
+        }
+
+        last_goal_time = now;
+
+        RCLCPP_INFO(this->get_logger(), "Goal accepted");
+        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;    
     }
 
     rclcpp_action::CancelResponse handle_cancel(
@@ -85,6 +105,15 @@ private:
     {
         using namespace std::placeholders;
         // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+        std::lock_guard<std::mutex> lock(goal_mutex);
+
+        if (active_goal) {
+            auto result = std::make_shared<Dump::Result>();
+            active_goal_->canceled(result);
+        }
+
+        active_goal = goal_handle;
+        
         std::thread{std::bind(&DumpAutoActionServer::execute, this, _1), goal_handle}.detach();
     }
 
@@ -102,21 +131,29 @@ private:
         rclcpp::Rate loop_rate(SERVER_LOOP_FREQUENCY);
 
 
-        while (true) 
+        while (rclcpp::ok()) 
         {
-            if (goal_handle->is_canceling()) 
             {
-                result->final_positions = positions;
-                goal_handle->canceled(result);
-                RCLCPP_INFO(this->get_logger(), "Goal canceled");
-                return;
+                std::lock_guard<std::mutex> lock(goal_mutex);
+                if (goal_handle != active_goal || goal_handle->is_canceling()) 
+                {
+                    motor_messages::msg::Command door_stop_msg;
+                    motor_messages::msg::Command actuator_stop_msg;
+                    door_stop_msg.dutycycle.data = 0;
+                    actuator_stop_msg.dutycycle.data = 0;
+                    door_duty_publisher->publish(door_stop_msg);
+                    linear_actuator_duty_publisher->publish(actuator_stop_msg);
+                    result->final_positions = positions;
+                    goal_handle->canceled(result);
+                    RCLCPP_INFO(this->get_logger(), "Goal canceled");
+                    return;
+                }
             }
             
             positions.clear();
             positions.push_back(door_position);
             positions.push_back(actuator_position);
             goal_handle->publish_feedback(feedback);
-            RCLCPP_INFO(this->get_logger(), "Publish feedback");
 
             bool door_complete = false;
             bool actuator_complete = false;

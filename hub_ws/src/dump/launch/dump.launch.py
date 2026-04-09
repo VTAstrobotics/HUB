@@ -45,16 +45,16 @@ def generate_launch_description():
     )
 
 
-    foxglove_studio = Node(
-        package="foxglove_bridge",
-        executable="foxglove_bridge",
-        name="foxglove_bridge"
-    )
+    # foxglove_studio = Node(
+    #     package="foxglove_bridge",
+    #     executable="foxglove_bridge",
+    #     name="foxglove_bridge"
+    # )
 
     return LaunchDescription([
         spawn_dump_auto,
         spawn_dump_door_motor,
         spawn_dump_linear_actuator,
-        foxglove_studio,
+        # foxglove_studio,
     ])
 
