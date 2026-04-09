@@ -1,11 +1,5 @@
-# Goal
-float64 target_position
-
+int32 target_position
 ---
-# Result
-bool success
-float64 final_position
-
+float64 final_positions
 ---
-# Feedback
-float64 current_position
+float64 positions
