@@ -37,8 +37,8 @@ private:
 
     action_msgs::msg::GoalStatusArray::SharedPtr nav2_status;
 
-        void
-        fsm_callback()
+    void
+    fsm_callback()
     {
         switch (auto_state)
         {
@@ -69,7 +69,26 @@ private:
         //     return;
         // }
         nav2_status = msg;
-    }
+
+        auto latest_status = msg->status_list.back();
+        int8_t status_code = latest_status.status;
+
+        switch (status_code)
+        {
+        case 2: // STATUS_EXECUTING
+            RCLCPP_INFO(this->get_logger(), "Still navigating");
+            break;
+        case 4: // STATUS_SUCCEEDED
+            RCLCPP_INFO(this->get_logger(), "Goal reached");
+            break;
+        case 6: // STATUS_ABORTED
+            RCLCPP_ERROR(this->get_logger(), "Navigation failed.");
+            break;
+        case 5: // STATUS_CANCELED
+            RCLCPP_WARN(this->get_logger(), "canceled");
+            break;
+        }
+    }   
 };
 
 int main(int argc, char **argv)
