@@ -12,6 +12,15 @@ enum AUTO_STATES
     DUMP
 };
 
+enum NAVIGATION_STATES
+{
+    NAVIGATING = 2,
+    SUCCEEDED = 4,
+    CANCELED = 5,
+    ABORTED = 6,
+
+};
+
 using std::placeholders::_1;
 class AutoFSM : public rclcpp::Node // You will modify the name
 {
@@ -36,6 +45,7 @@ private:
     rclcpp::Subscription<action_msgs::msg::GoalStatusArray>::SharedPtr subscription_;
 
     action_msgs::msg::GoalStatusArray::SharedPtr nav2_status;
+    NAVIGATION_STATES navigation_status_code;
 
     void
     fsm_callback()
@@ -49,6 +59,10 @@ private:
             // send home goal
             break;
         case (DRIVE_TO_DIG):
+            if(navigation_status_code == SUCCEEDED){
+                auto_state = DIG;
+                break;
+            }
             break;
         case (DIG):
             break;
@@ -71,24 +85,24 @@ private:
         nav2_status = msg;
 
         auto latest_status = msg->status_list.back();
-        int8_t status_code = latest_status.status;
+        navigation_status_code = static_cast<NAVIGATION_STATES>(latest_status.status);
 
-        switch (status_code)
+        switch (navigation_status_code)
         {
-        case 2: // STATUS_EXECUTING
+        case NAVIGATING: // STATUS_EXECUTING
             RCLCPP_INFO(this->get_logger(), "Still navigating");
             break;
-        case 4: // STATUS_SUCCEEDED
+        case SUCCEEDED: // STATUS_SUCCEEDED
             RCLCPP_INFO(this->get_logger(), "Goal reached");
             break;
-        case 6: // STATUS_ABORTED
+        case ABORTED: // STATUS_ABORTED
             RCLCPP_ERROR(this->get_logger(), "Navigation failed.");
             break;
-        case 5: // STATUS_CANCELED
+        case CANCELED: // STATUS_CANCELED
             RCLCPP_WARN(this->get_logger(), "canceled");
             break;
         }
-    }   
+    }
 };
 
 int main(int argc, char **argv)
