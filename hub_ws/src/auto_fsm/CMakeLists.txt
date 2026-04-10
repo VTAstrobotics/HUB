@@ -7,6 +7,22 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+
+add_executable(auto_fsm_node src/auto_fsm.cpp)
+
+ament_target_dependencies(auto_fsm_node
+  nav_msgs
+  rclcpp
+)
+
+install(TARGETS auto_fsm_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
