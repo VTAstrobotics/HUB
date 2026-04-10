@@ -61,12 +61,18 @@ private:
         case (DRIVE_TO_DIG):
             if(navigation_status_code == SUCCEEDED){
                 auto_state = DIG;
+                //send dig goal
                 break;
             }
             break;
         case (DIG):
             break;
         case (DRIVE_TO_DUMP):
+            if(navigation_status_code == SUCCEEDED){
+                auto_state = DUMP;
+                //send dump goal;
+                break;
+            }
             break;
         case (DUMP):
             break;
