@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 
-#include "nav_msgs/msg/odometry.hpp"
+#include "action_msgs/msg/goal_status_array.hpp"
 
 enum AUTO_STATES
 {
@@ -24,19 +24,21 @@ public:
             std::bind(&AutoFSM::fsm_callback, this));
         auto_state = STARTUP;
 
-        position_subscriber = this->create_subscription<nav_msgs::msg::Odometry>(
-            "/odometry/filtered_map", 10, std::bind(&AutoFSM::position_subscriber_callback, this, _1));
+        subscription_ = this->create_subscription<action_msgs::msg::GoalStatusArray>(
+            "/navigate_to_pose/_action/status", 10,
+            std::bind(&AutoFSM::status_callback, this, std::placeholders::_1));
     }
 
 private:
     rclcpp::TimerBase::SharedPtr timer_ptr_;
     AUTO_STATES auto_state;
 
-    nav_msgs::msg::Odometry current_position;
+    rclcpp::Subscription<action_msgs::msg::GoalStatusArray>::SharedPtr subscription_;
 
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr position_subscriber;
+    action_msgs::msg::GoalStatusArray::SharedPtr nav2_status;
 
-    void fsm_callback()
+        void
+        fsm_callback()
     {
         switch (auto_state)
         {
@@ -60,10 +62,13 @@ private:
         // fsm
     }
 
-    void position_subscriber_callback(nav_msgs::msg::Odometry::SharedPtr msg)
+    void status_callback(const action_msgs::msg::GoalStatusArray::SharedPtr msg)
     {
-        current_position = *msg;
-        return;
+        // if (msg->status_list.empty()) {
+        //     RCLCPP_INFO(this->get_logger(), "No active navigation goals.");
+        //     return;
+        // }
+        nav2_status = msg;
     }
 };
 
