@@ -1,6 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "action_msgs/msg/goal_status_array.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 
 #include <mutex>
 
@@ -39,6 +41,9 @@ public:
         subscription_ = this->create_subscription<action_msgs::msg::GoalStatusArray>(
             "/navigate_to_pose/_action/status", 10,
             std::bind(&AutoFSM::status_callback, this, std::placeholders::_1));
+
+        nav_client =
+            rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(this, "/navigate_to_pose");
     }
 
 private:
@@ -50,6 +55,8 @@ private:
 
     action_msgs::msg::GoalStatusArray::SharedPtr nav2_status;
     NAVIGATION_STATES navigation_status_code;
+
+    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client;
 
     void
     fsm_callback()
@@ -114,7 +121,7 @@ private:
         }
     }
 
-    handle_drive_to_dig()
+    void handle_drive_to_dig()
     {
         switch (navigation_status_code)
         {
@@ -124,11 +131,39 @@ private:
             auto_state = DIG;
             break;
         case ABORTED:
-            //try again
+            auto_state = LOCALIZE;
             break;
         case CANCELED:
             break;
         }
+    }
+    void handle_drive_to_dump()
+    {
+        switch (navigation_status_code)
+        {
+        case NAVIGATING:
+            break;
+        case SUCCEEDED:
+            auto_state = DIG;
+            break;
+        case ABORTED:
+            auto_state = LOCALIZE;
+            break;
+        case CANCELED:
+            break;
+        }
+    }
+
+    void send_nav2_goal(int x, int y, int w)
+    {
+        nav2_msgs::action::NavigateToPose::Goal goal;
+        goal.pose.header.frame_id = "map";
+        goal.pose.header.stamp = this->now();
+        goal.pose.pose.position.x = x;
+        goal.pose.pose.position.y = y;
+        goal.pose.pose.position.z = 0.0;
+        goal.pose.pose.orientation.w = w;
+        nav_client->async_send_goal(goal);
     }
 };
 
