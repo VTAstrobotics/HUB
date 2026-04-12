@@ -2,9 +2,12 @@
 
 #include "action_msgs/msg/goal_status_array.hpp"
 
+#include <mutex>
+
 enum AUTO_STATES
 {
     STARTUP,
+    LOCALIZE,
     HOME,
     DRIVE_TO_DIG,
     DIG,
@@ -41,6 +44,7 @@ public:
 private:
     rclcpp::TimerBase::SharedPtr timer_ptr_;
     AUTO_STATES auto_state;
+    std::mutex nav_state_mutex;
 
     rclcpp::Subscription<action_msgs::msg::GoalStatusArray>::SharedPtr subscription_;
 
@@ -55,24 +59,24 @@ private:
         case (STARTUP):
             // button press
             break;
+        case (LOCALIZE): // spin to win
+            break;
         case (HOME):
             // send home goal
             break;
         case (DRIVE_TO_DIG):
-            if(navigation_status_code == SUCCEEDED){
-                auto_state = DIG;
-                //send dig goal
-                break;
-            }
+            handle_drive_to_dig();
             break;
         case (DIG):
             break;
         case (DRIVE_TO_DUMP):
-            if(navigation_status_code == SUCCEEDED){
-                auto_state = DUMP;
-                //send dump goal;
-                break;
-            }
+            if (navigation_status_code == ABORTED)
+                if (navigation_status_code == SUCCEEDED)
+                {
+                    auto_state = DUMP;
+                    // send dump goal;
+                    break;
+                }
             break;
         case (DUMP):
             break;
@@ -106,6 +110,23 @@ private:
             break;
         case CANCELED: // STATUS_CANCELED
             RCLCPP_WARN(this->get_logger(), "canceled");
+            break;
+        }
+    }
+
+    handle_drive_to_dig()
+    {
+        switch (navigation_status_code)
+        {
+        case NAVIGATING:
+            break;
+        case SUCCEEDED:
+            auto_state = DIG;
+            break;
+        case ABORTED:
+            //try again
+            break;
+        case CANCELED:
             break;
         }
     }
