@@ -26,7 +26,14 @@ enum NAVIGATION_STATES
 
 };
 
-using std::placeholders::_1;
+struct Nav2Coordinates
+{
+    float x;
+    float y;
+    float w;
+};
+
+    using std::placeholders::_1;
 class AutoFSM : public rclcpp::Node // You will modify the name
 {
 public:
@@ -44,12 +51,22 @@ public:
 
         nav_client =
             rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(this, "/navigate_to_pose");
+
+        dig_coordinates.x = 0;
+        dig_coordinates.y = 0;
+        dig_coordinates.w = 0;
+
+        dump_coordinates.x = 0;
+        dump_coordinates.y = 0;
+        dump_coordinates.w = 0;
     }
 
 private:
     rclcpp::TimerBase::SharedPtr timer_ptr_;
     AUTO_STATES auto_state;
     std::mutex nav_state_mutex;
+    Nav2Coordinates dig_coordinates;
+    Nav2Coordinates dump_coordinates;
 
     rclcpp::Subscription<action_msgs::msg::GoalStatusArray>::SharedPtr subscription_;
 
@@ -154,7 +171,7 @@ private:
         }
     }
 
-    void send_nav2_goal(int x, int y, int w)
+    void send_nav2_goal(float x, float y, float w)
     {
         nav2_msgs::action::NavigateToPose::Goal goal;
         goal.pose.header.frame_id = "map";
