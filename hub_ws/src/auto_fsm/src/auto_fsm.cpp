@@ -4,6 +4,8 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
+#include "dump/action/dump.hpp"
+
 #include <mutex>
 
 enum AUTO_STATES
@@ -26,6 +28,12 @@ enum NAVIGATION_STATES
 
 };
 
+enum DumpPosition
+{
+    HOME,
+    DUMP
+};
+
 struct Nav2Coordinates
 {
     float x;
@@ -33,11 +41,11 @@ struct Nav2Coordinates
     float w;
 };
 
-    using std::placeholders::_1;
-class AutoFSM : public rclcpp::Node 
+using std::placeholders::_1;
+class AutoFSM : public rclcpp::Node
 {
 public:
-    AutoFSM() : Node("auto_fsm_node") 
+    AutoFSM() : Node("auto_fsm_node")
     {
 
         timer_ptr_ = this->create_wall_timer(
@@ -74,6 +82,7 @@ private:
     NAVIGATION_STATES navigation_status_code;
 
     rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client;
+    rclcpp_action::Client<Dump>::SharedPtr dump_client;
 
     void
     fsm_callback()
