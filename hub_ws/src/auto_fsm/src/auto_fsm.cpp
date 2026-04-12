@@ -34,10 +34,10 @@ struct Nav2Coordinates
 };
 
     using std::placeholders::_1;
-class AutoFSM : public rclcpp::Node // You will modify the name
+class AutoFSM : public rclcpp::Node 
 {
 public:
-    AutoFSM() : Node("auto_fsm_node") // You will modify the name
+    AutoFSM() : Node("auto_fsm_node") 
     {
 
         timer_ptr_ = this->create_wall_timer(
