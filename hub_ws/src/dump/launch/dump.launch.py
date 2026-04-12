@@ -16,6 +16,12 @@ def generate_launch_description():
         parameters=[]
     )
 
+    spawn_dump_teleop = Node(package="dump",
+        executable="dump_teleop",
+        name="dump_teleop",
+        parameters=[]
+    )
+
     spawn_dump_door_motor = Node(package = "motor_control",
     executable = "kraken_control_node",
     name = "kraken_control_node",
@@ -53,6 +59,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         spawn_dump_auto,
+        spawn_dump_teleop,
         spawn_dump_door_motor,
         spawn_dump_linear_actuator,
         # foxglove_studio,

@@ -5,10 +5,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+add_executable(dump_teleop_node src/dump_teleop.cpp)
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(motor_messages REQUIRED)
 find_package(motor_control REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
@@ -27,6 +30,7 @@ ament_target_dependencies(action_server
   rclcpp
   rclcpp_action
   rclcpp_components
+  std_msgs
   motor_messages
   motor_control
 )
@@ -40,12 +44,18 @@ rclcpp_components_register_node(action_server
 
 target_link_libraries(action_server
   motor_control::motor_control_nodes)
+target_link_libraries(dump_teleop_node
+ motor_control::motor_control_nodes)
 
 install(TARGETS
   action_server
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
+
+install(TARGETS dump_teleop_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/

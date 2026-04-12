@@ -49,19 +49,19 @@ public:
             
         door_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>(
             "/dump_door/status", 10, std::bind(&DumpAutoActionServer::dump_door_status_callback, this, _1));
-        linear_actuator_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>(
+        actuator_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>(
             "/dump_linear_actuator/status", 10, std::bind(&DumpAutoActionServer::dump_actuator_status_callback, this, _1));
 
         door_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_door/control", 4);
-        linear_actuator_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_linear_actuator/control", 4);
+        actuator_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_linear_actuator/control", 4);
     }
 
 private:
     rclcpp_action::Server<Dump>::SharedPtr dump_action_server;
     rclcpp::Subscription<motor_messages::msg::Feedback>::SharedPtr door_feedback_subscriber;
-    rclcpp::Subscription<motor_messages::msg::Feedback>::SharedPtr linear_actuator_feedback_subscriber;
+    rclcpp::Subscription<motor_messages::msg::Feedback>::SharedPtr actuator_feedback_subscriber;
     rclcpp::Publisher<motor_messages::msg::Command>::SharedPtr door_duty_publisher;
-    rclcpp::Publisher<motor_messages::msg::Command>::SharedPtr linear_actuator_duty_publisher;
+    rclcpp::Publisher<motor_messages::msg::Command>::SharedPtr actuator_duty_publisher;
 
     bool startup_sequence = true;
     float door_position = 0;
@@ -109,7 +109,7 @@ private:
 
         if (active_goal) {
             auto result = std::make_shared<Dump::Result>();
-            active_goal_->canceled(result);
+            active_goal->canceled(result);
         }
 
         active_goal = goal_handle;
@@ -142,7 +142,7 @@ private:
                     door_stop_msg.dutycycle.data = 0;
                     actuator_stop_msg.dutycycle.data = 0;
                     door_duty_publisher->publish(door_stop_msg);
-                    linear_actuator_duty_publisher->publish(actuator_stop_msg);
+                    actuator_duty_publisher->publish(actuator_stop_msg);
                     result->final_positions = positions;
                     goal_handle->canceled(result);
                     RCLCPP_INFO(this->get_logger(), "Goal canceled");
@@ -205,7 +205,7 @@ private:
             }
 
             door_duty_publisher->publish(door_msg);
-            linear_actuator_duty_publisher->publish(actuator_msg);
+            actuator_duty_publisher->publish(actuator_msg);
 
             if(door_complete && actuator_complete) break;
 
