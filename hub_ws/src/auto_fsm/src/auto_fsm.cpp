@@ -189,7 +189,7 @@ private:
         goal.pose.pose.position.y = y;
         goal.pose.pose.position.z = 0.0;
         goal.pose.pose.orientation.w = w;
-        nav_client->async_send_goal(goal);
+        nav_client->async_send_goal(goal); //probaby need handle goal options - 
     }
 };
 
