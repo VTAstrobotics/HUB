@@ -67,12 +67,12 @@ public:
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
-    RAISE_ACTUATOR = this->get_parameter("CONVEYOR_FORWARD").as_string();
-    LOWER_ACTUATOR = this->get_parameter("CONVEYOR_REVERSE").as_string();
     OPEN_DOOR = this->get_parameter("OPEN_DOOR").as_string();
     CLOSE_DOOR = this->get_parameter("CLOSE_DOOR").as_string();
     DIG_UP = this->get_parameter("DIG_UP").as_string();
     DIG_DOWN = this->get_parameter("DIG_DOWN").as_string();
+    RAISE_ACTUATOR = this->get_parameter("RAISE_ACTUATOR").as_string();
+    LOWER_ACTUATOR = this->get_parameter("LOWER_ACTUATOR").as_string();
 
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
