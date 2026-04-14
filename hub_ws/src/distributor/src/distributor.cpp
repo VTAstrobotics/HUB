@@ -56,21 +56,26 @@ public:
     stopwatch.start();
     this->declare_parameter("TRANSLATION_CONTROL", "LSTICKY");
     this->declare_parameter("ROTATION_CONTROL", "RSTICKX");
-    this->declare_parameter("CONVEYOR_FORWARD", "BUTTON_B");
-    this->declare_parameter("CONVEYOR_REVERSE", "BUTTON_A");
+    this->declare_parameter("DIG_UP", "RTRIGGER");
+    this->declare_parameter("DIG_DOWN", "LTRIGGER");
+    this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
+    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_X");
+    this->declare_parameter("OPEN_DOOR", "BUTTON_A");
+    this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.3);
     this->declare_parameter("ANGULAR_SCALE", 0.3);
+
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
-    CONVEYOR_FORWARD = this->get_parameter("CONVEYOR_FORWARD").as_string();
-    CONVEYOR_REVERSE = this->get_parameter("CONVEYOR_REVERSE").as_string();
+    RAISE_ACTUATOR = this->get_parameter("CONVEYOR_FORWARD").as_string();
+    LOWER_ACTUATOR = this->get_parameter("CONVEYOR_REVERSE").as_string();
+    OPEN_DOOR = this->get_parameter("OPEN_DOOR").as_string();
+    CLOSE_DOOR = this->get_parameter("CLOSE_DOOR").as_string();
+    DIG_UP = this->get_parameter("DIG_UP").as_string();
+    DIG_DOWN = this->get_parameter("DIG_DOWN").as_string();
+
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
-
-    RCLCPP_DEBUG(this->get_logger(), "Translation Control parameter: %s", TRANSLATION_CONTROL.c_str());
-    RCLCPP_DEBUG(this->get_logger(), "Rotation Control parameter: %s", ROTATION_CONTROL.c_str());
-    RCLCPP_DEBUG(this->get_logger(), "Conveyor Forward parameter: %s", CONVEYOR_FORWARD.c_str());
-    RCLCPP_DEBUG(this->get_logger(), "Conveyor Reverse parameter: %s", CONVEYOR_REVERSE.c_str());
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -85,6 +90,19 @@ private:
     cmd.linear.x = lin;               // assigning the linear x vlaue to lin
     cmd.angular.z = ang;              // assigning the angular z value to ang
     velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
+
+    double dig_duty = msg->axes[controls.at(DIG_UP)] - msg->axes[controls.at(DIG_DOWN)];
+    std_msgs::msg::Float32 duty_msg;
+    duty_msg.data = dig_duty;
+    dig_publisher->publish(duty_msg);
+
+    double dump_actuator_duty = msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)];
+    duty_msg.data = dump_actuator_duty;
+    dig_publisher->publish(duty_msg);
+
+    double dump_door_duty = msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)];
+    duty_msg.data = dump_door_duty;
+    dig_publisher->publish(duty_msg);
 
     stopwatch.reset();
   }
@@ -115,6 +133,13 @@ private:
   std::string ROTATION_CONTROL;
   std::string CONVEYOR_FORWARD;
   std::string CONVEYOR_REVERSE;
+  std::string OPEN_DOOR;
+  std::string CLOSE_DOOR;
+  std::string RAISE_ACTUATOR;
+  std::string LOWER_ACTUATOR;
+  std::string DIG_UP;
+  std::string DIG_DOWN;
+
   // rclcpp::Timer timer_
 };
 
