@@ -16,32 +16,34 @@ def generate_launch_description():
         parameters=[]
     )
 
+    
+
     spawn_dump_door_motor = Node(package = "motor_control",
     executable = "kraken_control_node",
     name = "kraken_control_node",
-    parameters=[{"motor_name": "dump_door"},
+    parameters=[{"motor_name": "dump_bucket_teleop"},
                 {"can_interface": "can1"},
                 {"can_id": 11},
-                {"control_topic": "/dump_door/control"},
-                {"status_topic": "/dump_door/status"},
-                {"health_topic": "/dump_door/health"}],
+                {"control_topic": "/dump_bucket_teleop/control"},
+                {"status_topic": "/dump_bucket_teleop/status"},
+                {"health_topic": "/dump_bucket_teleop/health"}],
     arguments=["--ros-args",
                "-r",
-               "__node:=dump_door_controller"]
+               "__node:=dump_bucket_teleop_controller"]
     )
 
     spawn_dump_linear_actuator = Node(package = "motor_control",
     executable = "sparkmax_control_node",
     name = "sparkmax_control_node",
-    parameters=[{"motor_name": "dump_linear_actuator"},
+    parameters=[{"motor_name": "dump_actuator_teleop"},
                 {"can_interface": "can1"},
-                {"can_id": 12}, 
-                {"control_topic": "/dump_linear_actuator/control"},
-                {"status_topic": "/dump_linear_actuator/status"},
-                {"health_topic": "/dump_linear_actuator/health"}],
+                {"can_id": 22}, 
+                {"control_topic": "/dump_actuator_teleop/control"},
+                {"status_topic": "/dump_actuator_teleop/status"},
+                {"health_topic": "/dump_actuator_teleop/health"}],
     arguments=["--ros-args",
                "-r",
-               "__node:=dump_linear_actuator_controller"]
+               "__node:=dump_actuator_teleop_controller"]
     )
 
 
