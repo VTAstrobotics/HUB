@@ -27,6 +27,7 @@ def generate_launch_description():
                 {"control_topic": "/dig_motor_teleop/control"},
                 {"status_topic": "/dig_motor_teleop/status"},
                 {"health_topic": "/dig_motor_teleop/health"}],
+                #TODO add KG Vals and such
     arguments=["--ros-args",
                "-r",
                "__node:=dig_motor_teleop_controller"]
