@@ -109,7 +109,7 @@ private:
 
         if (active_goal) {
             auto result = std::make_shared<Dump::Result>();
-            active_goal_->canceled(result);
+            active_goal->canceled(result);
         }
 
         active_goal = goal_handle;

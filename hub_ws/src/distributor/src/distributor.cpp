@@ -6,6 +6,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joy.hpp"
+#include "std_msgs/msg/float32.hpp"
 #include "map.h"
 
 #define TIMEOUT 10.0
@@ -42,6 +43,12 @@ public:
         "/joy", 10, std::bind(&Distributor::joy_callback, this, _1));
 
     velocity_publisher = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10); // creates the publisher to the /joy topic
+
+    dig_publisher = this->create_publisher<std_msgs::msg::Float32>("/dig_teleop", 10);
+    dump_actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
+
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_door_publisher;
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -99,6 +106,9 @@ private:
 
   // this is where you can declare subscribers/publishers.
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dig_publisher;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_actuator_publisher;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_subscriber;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string TRANSLATION_CONTROL;
