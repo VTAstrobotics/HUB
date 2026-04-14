@@ -13,6 +13,9 @@ find_package(action_msgs REQUIRED)
 find_package(robot_localization REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(std_msgs REQUIRED)      
+find_package(dump REQUIRED)          
+
 
 
 add_executable(auto_fsm_node src/auto_fsm.cpp)
@@ -24,6 +27,9 @@ ament_target_dependencies(auto_fsm_node
   robot_localization
   rclcpp_action
   nav2_msgs
+  nav2_msgs
+  std_msgs      
+  dump
 )
 
 install(TARGETS auto_fsm_node
