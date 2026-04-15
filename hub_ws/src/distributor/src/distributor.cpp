@@ -91,16 +91,20 @@ private:
     cmd.angular.z = ang;              // assigning the angular z value to ang
     velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
 
-    double dig_duty = msg->axes[controls.at(DIG_UP)] - msg->axes[controls.at(DIG_DOWN)];
+    dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.5;
+    dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.5;
+
+    RT = ((-1 * RT) + 1) * 0.5;
+    double dig_duty = dig_up - dig_down;
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
     dig_publisher->publish(duty_msg);
 
-    double dump_actuator_duty = msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)];
+    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
     duty_msg.data = dump_actuator_duty;
     dig_publisher->publish(duty_msg);
 
-    double dump_door_duty = msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)];
+    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.1; // limit duty cyle;
     duty_msg.data = dump_door_duty;
     dig_publisher->publish(duty_msg);
 
