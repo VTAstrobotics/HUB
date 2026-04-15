@@ -46,9 +46,7 @@ public:
 
     dig_publisher = this->create_publisher<std_msgs::msg::Float32>("/dig_teleop", 10);
     dump_actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
-
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_door_publisher;
+    dump_bucket_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_bucket_teleop", 10);
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -94,18 +92,18 @@ private:
     float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.5;
     float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.5;
 
-    double dig_duty = dig_up - dig_down;
+    double dig_duty = (dig_up - dig_down) * 0.5; //limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
     dig_publisher->publish(duty_msg);
 
-    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
+    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]); 
     duty_msg.data = dump_actuator_duty;
-    dig_publisher->publish(duty_msg);
+    dump_actuator_publisher->publish(duty_msg);
 
     double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.1; // limit duty cyle;
     duty_msg.data = dump_door_duty;
-    dig_publisher->publish(duty_msg);
+    dump_bucket_publisher->publish(duty_msg);
 
     stopwatch.reset();
   }
