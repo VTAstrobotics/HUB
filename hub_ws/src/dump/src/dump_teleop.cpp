@@ -24,6 +24,10 @@ public:
             "/dump_actuator_teleop", 10,
             std::bind(&DumpTeleop::actuator_callback, this, _1));
 
+        homing_subscriber = this->create_subscription<std_msgs::msg::Float32>(
+            "/actuator_homing", 10,
+            std::bind(&DumpTeleop::actuator_homing_callback, this, _1));
+
         RCLCPP_INFO(this->get_logger(), "Dump Teleop Node has started.");
     }
 
@@ -56,6 +60,17 @@ private:
         actuator_motor->send_command(actuator_cmd);
 
         RCLCPP_INFO(this->get_logger(), "Actuator duty cycle: %f", duty);
+    }
+
+    void actuator_homing_callback(std_msgs::msg::Integer32::SharedPtr msg)
+    {
+        int state = msg->data;
+        if (state == 1)
+        {
+            actuator_cmd.dutycycle.data = -1;
+            actuator_motor->send_command(actuator_cmd);
+            if ()
+        }
     }
 };
 

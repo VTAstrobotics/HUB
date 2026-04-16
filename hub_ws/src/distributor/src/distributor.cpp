@@ -47,6 +47,8 @@ public:
     dig_publisher = this->create_publisher<std_msgs::msg::Float32>("/dig_teleop", 10);
     dump_actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
     dump_bucket_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_bucket_teleop", 10);
+    
+    actuator_homing_publisher = this->create_publisher<std_msgs::msg::Integer32>("/actuator_homing", 10);
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -63,6 +65,8 @@ public:
     this->declare_parameter("LINEAR_SCALE", 0.3);
     this->declare_parameter("ANGULAR_SCALE", 0.3);
 
+    this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
+
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
     OPEN_DOOR = this->get_parameter("OPEN_DOOR").as_string();
@@ -71,9 +75,11 @@ public:
     DIG_DOWN = this->get_parameter("DIG_DOWN").as_string();
     RAISE_ACTUATOR = this->get_parameter("RAISE_ACTUATOR").as_string();
     LOWER_ACTUATOR = this->get_parameter("LOWER_ACTUATOR").as_string();
-
+    
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
+
+    ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -89,8 +95,8 @@ private:
     cmd.angular.z = ang;              // assigning the angular z value to ang
     velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
 
-    float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.5;
-    float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.5;
+    float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.15;
+    float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.15;
 
     double dig_duty = (dig_up - dig_down) * 0.5; //limit duty cycle
     std_msgs::msg::Float32 duty_msg;
@@ -101,10 +107,15 @@ private:
     duty_msg.data = dump_actuator_duty;
     dump_actuator_publisher->publish(duty_msg);
 
-    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.1; // limit duty cyle;
+    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.07; // limit duty cyle;
     duty_msg.data = dump_door_duty;
     dump_bucket_publisher->publish(duty_msg);
 
+    std_msgs::msg::Integer32 homing_msg;
+    int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
+    homing_msg.data = actuator_homing;
+    actuator_homing_publisher->publish(actuator_homing);
+    
     stopwatch.reset();
   }
   void timer_callback()

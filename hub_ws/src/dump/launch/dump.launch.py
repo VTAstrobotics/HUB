@@ -32,7 +32,7 @@ def generate_launch_description():
         parameters=[
             {"motor_name": "dump_bucket_teleop"},
             {"can_interface": "can1"},
-            {"can_id": 11},
+            {"can_id": 21},
             {"control_topic": "/dump_bucket_teleop/control"},
             {"status_topic": "/dump_bucket_teleop/status"},
             {"health_topic": "/dump_bucket_teleop/health"},

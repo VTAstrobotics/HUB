@@ -23,10 +23,11 @@ def generate_launch_description():
     name = "kraken_control_node",
     parameters=[{"motor_name": "dig_motor_teleop"},
                 {"can_interface": "can1"},
-                {"can_id": 11},
+                {"can_id": 23},
                 {"control_topic": "/dig_motor_teleop/control"},
                 {"status_topic": "/dig_motor_teleop/status"},
-                {"health_topic": "/dig_motor_teleop/health"}],
+                {"health_topic": "/dig_motor_teleop/health"},
+                {"brake": True}],
                 #TODO add KG Vals and such
     arguments=["--ros-args",
                "-r",

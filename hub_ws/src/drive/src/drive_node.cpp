@@ -163,7 +163,6 @@ private:
     double linear_y = vel.linear * sin(current_pose.theta);
     new_pose.x = current_pose.x + linear_x * dt;
     new_pose.y = current_pose.y + linear_y * dt;
-    ;
     new_pose.theta = current_pose.theta + vel.angular_z * dt;
     return new_pose;
   }

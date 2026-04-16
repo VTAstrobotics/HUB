@@ -20,6 +20,7 @@ public:
         this->get_parameter("control_topic").as_string(),
         10,
         std::bind(&KrakenController::control_callback, this, std::placeholders::_1));
+    
 
     std::string status_topic = this->get_parameter("status_topic").as_string();
     std::string health_topic = this->get_parameter("health_topic").as_string();
