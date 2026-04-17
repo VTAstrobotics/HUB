@@ -155,6 +155,7 @@ private:
       RCLCPP_ERROR(this->get_logger(), "Time went backwards somehow in odometry integration");
       dt = 0; // just dont change the state estimate
     }
+
     if (dt > 2 * (1 / odom_update_rate))
     {
       RCLCPP_WARN(this->get_logger(), "Large dt detected in odometry integration: %f seconds", dt);
