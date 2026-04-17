@@ -111,10 +111,10 @@ private:
     duty_msg.data = dump_door_duty;
     dump_bucket_publisher->publish(duty_msg);
 
-    std_msgs::msg::Int32 homing_msg;
-    int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
-    homing_msg.data = actuator_homing;
-    actuator_homing_publisher->publish(homing_msg);
+    // std_msgs::msg::Int32 homing_msg;
+    // int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
+    // homing_msg.data = actuator_homing;
+    // actuator_homing_publisher->publish(homing_msg);
 
     stopwatch.reset();
   }
