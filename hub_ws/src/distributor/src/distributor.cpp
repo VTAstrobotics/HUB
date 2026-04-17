@@ -7,6 +7,7 @@
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "map.h"
 
 #define TIMEOUT 10.0
@@ -47,8 +48,8 @@ public:
     dig_publisher = this->create_publisher<std_msgs::msg::Float32>("/dig_teleop", 10);
     dump_actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
     dump_bucket_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_bucket_teleop", 10);
-    
-    actuator_homing_publisher = this->create_publisher<std_msgs::msg::Integer32>("/actuator_homing", 10);
+
+    actuator_homing_publisher = this->create_publisher<std_msgs::msg::Int32>("/actuator_homing", 10);
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -64,7 +65,6 @@ public:
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.3);
     this->declare_parameter("ANGULAR_SCALE", 0.3);
-
     this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
@@ -75,7 +75,7 @@ public:
     DIG_DOWN = this->get_parameter("DIG_DOWN").as_string();
     RAISE_ACTUATOR = this->get_parameter("RAISE_ACTUATOR").as_string();
     LOWER_ACTUATOR = this->get_parameter("LOWER_ACTUATOR").as_string();
-    
+
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
 
@@ -98,12 +98,12 @@ private:
     float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.15;
     float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.15;
 
-    double dig_duty = (dig_up - dig_down) * 0.5; //limit duty cycle
+    double dig_duty = (dig_up - dig_down) * 0.5; // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
     dig_publisher->publish(duty_msg);
 
-    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]); 
+    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
     duty_msg.data = dump_actuator_duty;
     dump_actuator_publisher->publish(duty_msg);
 
@@ -111,11 +111,11 @@ private:
     duty_msg.data = dump_door_duty;
     dump_bucket_publisher->publish(duty_msg);
 
-    std_msgs::msg::Integer32 homing_msg;
+    std_msgs::msg::Int32 homing_msg;
     int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
     homing_msg.data = actuator_homing;
-    actuator_homing_publisher->publish(actuator_homing);
-    
+    actuator_homing_publisher->publish(homing_msg);
+
     stopwatch.reset();
   }
   void timer_callback()
@@ -140,6 +140,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_actuator_publisher;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_subscriber;
+  rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr actuator_homing_publisher;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string TRANSLATION_CONTROL;
   std::string ROTATION_CONTROL;
@@ -151,6 +152,7 @@ private:
   std::string LOWER_ACTUATOR;
   std::string DIG_UP;
   std::string DIG_DOWN;
+  std::string ACTUATOR_HOMING;
 
   // rclcpp::Timer timer_
 };
