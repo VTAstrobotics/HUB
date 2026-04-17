@@ -64,7 +64,7 @@ public:
     this->declare_parameter("OPEN_DOOR", "BUTTON_A");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.3);
-    this->declare_parameter("ANGULAR_SCALE", 0.3);
+    this->declare_parameter("ANGULAR_SCALE", 0.6);
     this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();

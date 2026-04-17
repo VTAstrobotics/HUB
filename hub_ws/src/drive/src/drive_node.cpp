@@ -122,6 +122,7 @@ private:
     double left_rpm = vel_to_rpm(left_vel);
     double right_rpm = vel_to_rpm(right_vel);
 
+
     std::cout << "RPM: " << left_rpm << " | " << right_rpm << "\n"
               << std::endl;
 
