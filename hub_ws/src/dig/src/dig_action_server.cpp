@@ -121,43 +121,23 @@ private:
             switch (commandedPosition)
             {
                 case STOW:
-                    if (fabs(dig_position - DIG_STOW_POSITION) < DIG_THRESHOLD)
-                    {
-                        dig_complete = true;
-                        dig_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        dig_msg.position.data = DIG_STOW_POSITION;
-                    }
+
+                    dig_msg.position.data = DIG_STOW_POSITION;
+                    //dig_complete = true;
                     break;
                 case COLLECT:
-                    if (fabs(dig_position - DIG_COLLECT_POSITION) < DIG_THRESHOLD)
-                    {
-                        dig_complete = true;
-                        dig_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        dig_msg.position.data = DIG_COLLECT_POSITION;
-                    }
+                    dig_msg.position.data = DIG_COLLECT_POSITION;
+                    //dig_complete = true;
                     break;
                 case DEPOSIT:
-                    if (fabs(dig_position - DIG_DEPOSIT_POSITION) < DIG_THRESHOLD)
-                    {
-                        dig_complete = true;
-                        dig_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        dig_msg.position.data = DIG_DEPOSIT_POSITION;
-                    }
+                    dig_msg.position.data = DIG_DEPOSIT_POSITION;
+                    //dig_complete = true;
                     break;
                 
             }
 
             dig_publisher->publish(dig_msg);
-            if (dig_complete) break;
+            //if (dig_complete) break;
             loop_rate.sleep();
             
         }
