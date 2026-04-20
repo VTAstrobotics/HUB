@@ -6,6 +6,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
 
 from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import ExecuteProcess
 
 
 def generate_launch_description():
@@ -27,6 +28,11 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            ExecuteProcess(
+            cmd=['bash', '../../../launch_scripts/can_startup.sh'],
+            # prefix=['sudo'],
+            output='screen'
+            ),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dig_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
