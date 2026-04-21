@@ -7,6 +7,7 @@
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "map.h"
 
 #define TIMEOUT 10.0
@@ -46,9 +47,9 @@ public:
 
     dig_publisher = this->create_publisher<std_msgs::msg::Float32>("/dig_teleop", 10);
     dump_actuator_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_actuator_teleop", 10);
+    dump_bucket_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_bucket_teleop", 10);
 
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
-    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_door_publisher;
+    actuator_homing_publisher = this->create_publisher<std_msgs::msg::Int32>("/actuator_homing", 10);
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -63,19 +64,22 @@ public:
     this->declare_parameter("OPEN_DOOR", "BUTTON_A");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.3);
-    this->declare_parameter("ANGULAR_SCALE", 0.3);
+    this->declare_parameter("ANGULAR_SCALE", 0.6);
+    this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
-    RAISE_ACTUATOR = this->get_parameter("CONVEYOR_FORWARD").as_string();
-    LOWER_ACTUATOR = this->get_parameter("CONVEYOR_REVERSE").as_string();
     OPEN_DOOR = this->get_parameter("OPEN_DOOR").as_string();
     CLOSE_DOOR = this->get_parameter("CLOSE_DOOR").as_string();
     DIG_UP = this->get_parameter("DIG_UP").as_string();
     DIG_DOWN = this->get_parameter("DIG_DOWN").as_string();
+    RAISE_ACTUATOR = this->get_parameter("RAISE_ACTUATOR").as_string();
+    LOWER_ACTUATOR = this->get_parameter("LOWER_ACTUATOR").as_string();
 
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
+
+    ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -91,18 +95,26 @@ private:
     cmd.angular.z = ang;              // assigning the angular z value to ang
     velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
 
-    double dig_duty = msg->axes[controls.at(DIG_UP)] - msg->axes[controls.at(DIG_DOWN)];
+    float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.15;
+    float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.15;
+
+    double dig_duty = (dig_up - dig_down) * 0.5; // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
     dig_publisher->publish(duty_msg);
 
-    double dump_actuator_duty = msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)];
+    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
     duty_msg.data = dump_actuator_duty;
-    dig_publisher->publish(duty_msg);
+    dump_actuator_publisher->publish(duty_msg);
 
-    double dump_door_duty = msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)];
+    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.07; // limit duty cyle;
     duty_msg.data = dump_door_duty;
-    dig_publisher->publish(duty_msg);
+    dump_bucket_publisher->publish(duty_msg);
+
+    // std_msgs::msg::Int32 homing_msg;
+    // int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
+    // homing_msg.data = actuator_homing;
+    // actuator_homing_publisher->publish(homing_msg);
 
     stopwatch.reset();
   }
@@ -128,6 +140,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_bucket_publisher;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dump_actuator_publisher;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_subscriber;
+  rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr actuator_homing_publisher;
   rclcpp::TimerBase::SharedPtr timer_;
   std::string TRANSLATION_CONTROL;
   std::string ROTATION_CONTROL;
@@ -139,6 +152,7 @@ private:
   std::string LOWER_ACTUATOR;
   std::string DIG_UP;
   std::string DIG_DOWN;
+  std::string ACTUATOR_HOMING;
 
   // rclcpp::Timer timer_
 };

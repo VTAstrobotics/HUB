@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(dig)
+project(robot_launch)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -11,33 +11,10 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(motor_messages REQUIRED)
-find_package(geometry_msgs REQUIRED)
-# find_package(motor_control REQUIRED)
-
-
-add_executable(dig_teleop_node src/dig_teleop.cpp src/motor.cpp)
-
-ament_target_dependencies(dig_teleop_node
-  rclcpp
-  std_msgs
-  motor_messages
-  geometry_msgs
-)
-# target_link_libraries(dig_teleop_node motor_control::motor_control_nodes)
-
-
-install(TARGETS dig_teleop_node
-  DESTINATION lib/${PROJECT_NAME}
-)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
 )
-
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

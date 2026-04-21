@@ -122,6 +122,7 @@ private:
     double left_rpm = vel_to_rpm(left_vel);
     double right_rpm = vel_to_rpm(right_vel);
 
+
     std::cout << "RPM: " << left_rpm << " | " << right_rpm << "\n"
               << std::endl;
 
@@ -154,6 +155,7 @@ private:
       RCLCPP_ERROR(this->get_logger(), "Time went backwards somehow in odometry integration");
       dt = 0; // just dont change the state estimate
     }
+
     if (dt > 2 * (1 / odom_update_rate))
     {
       RCLCPP_WARN(this->get_logger(), "Large dt detected in odometry integration: %f seconds", dt);
@@ -163,7 +165,6 @@ private:
     double linear_y = vel.linear * sin(current_pose.theta);
     new_pose.x = current_pose.x + linear_x * dt;
     new_pose.y = current_pose.y + linear_y * dt;
-    ;
     new_pose.theta = current_pose.theta + vel.angular_z * dt;
     return new_pose;
   }
