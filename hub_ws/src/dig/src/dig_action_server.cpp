@@ -29,6 +29,8 @@ enum DigPosition
     STOW = 2
 };
 
+std::unordered_map<DigPosition, float> positionMap{{COLLECT, DIG_COLLECT_POSITION}, {DEPOSIT, DIG_DEPOSIT_POSITION}, {STOW, DIG_STOW_POSITION}};
+
 class DigActionServer : public rclcpp::Node
 {
 public:
@@ -107,6 +109,8 @@ private:
         feedback->positions.push_back(dig_position_);
 
         float target = 0.0f;
+        // target = positionMap.at(commanded_position);
+        
         switch (commanded_position)
         {
         case STOW:
@@ -131,7 +135,7 @@ private:
 
         rclcpp::Rate loop_rate(10);
 
-        while (rclcpp::ok())
+        while (rclcpp::ok()) // potentially dangerous. May want watchdog timer.
         {
             if (goal_handle->is_canceling())
             {
