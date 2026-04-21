@@ -1,5 +1,5 @@
 int32 target_position
 ---
-float64 final_positions
+float64[] final_positions
 ---
-float64 positions
+float64[] positions
