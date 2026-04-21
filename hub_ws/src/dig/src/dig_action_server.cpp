@@ -121,7 +121,7 @@ private:
         default:
             result->final_positions.push_back(dig_position_);
             goal_handle->abort(result);
-            RCLCPP_ERROR(this->get_logger(), "Invalid commanded position");
+            RCLCPP_ERROR(this->get_logger(), "Invalid input position");
             return;
         }
 
@@ -145,7 +145,7 @@ private:
             feedback->positions.push_back(dig_position_);
             goal_handle->publish_feedback(feedback);
 
-            if (std::fabs(dig_position_ - target) <= DIG_THRESHOLD)
+            if (std::fabs(dig_position_ - target) <= DIG_THRESHOLD) // publish feedback until position is reached, then exit
             {
                 result->final_positions.push_back(dig_position_);
                 goal_handle->succeed(result);
@@ -158,7 +158,7 @@ private:
 
         result->final_positions.push_back(dig_position_);
         goal_handle->abort(result);
-        RCLCPP_ERROR(this->get_logger(), "ROS shutdown before goal completed");
+        RCLCPP_ERROR(this->get_logger(), "Strange error.");
     }
 
     void dig_status_callback(const motor_messages::msg::Feedback::SharedPtr msg)
