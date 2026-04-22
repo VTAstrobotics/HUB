@@ -163,44 +163,53 @@ private:
             switch (commandedPosition)
             {
                 case HOME:
-                    if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
-                    {
-                        door_complete = true;
-                        door_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
-                    }
-                    if (fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD)
-                    {
-                        actuator_complete = true;
-                        actuator_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        actuator_msg.dutycycle.data = -ACTUATOR_DUTY_CYCLE;
-                    }
+                    // if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
+                    // {
+                    //     door_complete = true;
+                    //     door_msg.dutycycle.data = 0;
+                    // }
+                    // else
+                    // {
+                    //     door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
+                    // }
+                    // if (fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD)
+                    // {
+                    //     actuator_complete = true;
+                    //     actuator_msg.dutycycle.data = 0;
+                    // }
+                    // else
+                    // {
+                    //     actuator_msg.dutycycle.data = -ACTUATOR_DUTY_CYCLE;
+                    // }
+                    door_msg.position.data = DOOR_HOME_POSITION;
+                    actuator_msg.position.data = ACTUATOR_HOME_POSITION;
+                    door_complete = fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD;
+                    actuator_complete = fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD;
                     break;
                 case DUMP:
-                    if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
-                    {
-                        door_complete = true;
-                        door_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
-                    }
-                    if (fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD)
-                    {
-                        actuator_complete = true;
-                        actuator_msg.dutycycle.data = 0;
-                    }
-                    else
-                    {
-                        actuator_msg.dutycycle.data = ACTUATOR_DUTY_CYCLE;
-                    }
+                    // if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
+                    // {
+                    //     door_complete = true;
+                    //     door_msg.dutycycle.data = 0;
+                    // }
+                    // else
+                    // {
+                    //     door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
+                    // }
+                    // if (fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD)
+                    // {
+                    //     actuator_complete = true;
+                    //     actuator_msg.dutycycle.data = 0;
+                    // }
+                    // else
+                    // {
+                    //     actuator_msg.dutycycle.data = ACTUATOR_DUTY_CYCLE;
+                    // }
+                    door_msg.position.data = DOOR_DUMP_POSITION;
+                    actuator_msg.position.data = ACTUATOR_DUMP_POSITION;
+                    door_complete = fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD;
+                    actuator_complete = fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD;
+
                     break;
             }
 
