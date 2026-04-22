@@ -56,6 +56,7 @@ public:
 
         dig_publisher_ =
             this->create_publisher<motor_messages::msg::Command>("/dig/control", 10);
+        RCLCPP_INFO(this->get_logger(), "Dig action server started");
     }
 
 private:
@@ -114,7 +115,7 @@ private:
 
         float target = 0.0f;
         // target = positionMap.at(commanded_position);
-        
+
         switch (commanded_position)
         {
         case STOW:
