@@ -17,35 +17,26 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/MotorControl.action"
 )
 
-add_library(action_server SHARED
+add_executable(dig_action_server
   src/dig_action_server.cpp)
 
-target_compile_definitions(action_server
-  PRIVATE "ACTION_TUTORIALS_CPP_BUILDING_DLL")
-
-ament_target_dependencies(action_server
+ament_target_dependencies(dig_action_server
   rclcpp
   rclcpp_action
-  rclcpp_components
   motor_messages
   motor_control
 )
 
-rosidl_target_interfaces(action_server
+rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
-rclcpp_components_register_node(action_server
-  PLUGIN "DumpAutoActionServer"
-  EXECUTABLE dig_action_server)
-
-target_link_libraries(action_server
+target_link_libraries(dig_action_server
+  ${cpp_typesupport_target}
   motor_control::motor_control_nodes)
 
 install(TARGETS
-  action_server
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+  dig_action_server
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/

@@ -56,7 +56,7 @@ public:
 
         dig_publisher_ =
             this->create_publisher<motor_messages::msg::Command>("/dig/control", 10);
-        RCLCPP_INFO(this->get_logger(), "Dig action server started");
+        RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
     }
 
 private:
@@ -176,4 +176,11 @@ private:
     }
 };
 
-RCLCPP_COMPONENTS_REGISTER_NODE(DigActionServer)
+int main(int argc, char ** argv)
+{
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<DigActionServer>(rclcpp::NodeOptions{});
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+  return 0;
+}
