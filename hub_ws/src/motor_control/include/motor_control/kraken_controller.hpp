@@ -20,7 +20,6 @@ public:
         this->get_parameter("control_topic").as_string(),
         10,
         std::bind(&KrakenController::control_callback, this, std::placeholders::_1));
-    
 
     std::string status_topic = this->get_parameter("status_topic").as_string();
     std::string health_topic = this->get_parameter("health_topic").as_string();
@@ -39,6 +38,11 @@ public:
     this->declare_parameter<float>("kD", 0);
     this->declare_parameter<float>("kG", 0);
     this->declare_parameter<int>("encoder_canID", 0);
+
+    this->declare_parameter<float>("stator_current_limit", 90);
+    this->declare_parameter<float>("supply_current_limit", 70);
+    this->declare_parameter<float>("low_supply_current_limit", 40);
+    this->declare_parameter<float>("low_supply_current_time", 1);
 
     this->declare_parameter<bool>("arm_cosine", false);
     this->declare_parameter<bool>("brake", false);
@@ -67,6 +71,20 @@ public:
     fx_config.Slot0.kD = kD;
     double kG = this->get_parameter("kG").as_double();
     fx_config.Slot0.kG = kG;
+
+    double stator_current_limit = this->get_parameter("stator_current_limit").as_double();
+    fx_config.CurrentLimits.StatorCurrentLimit = stator_current_limit;
+
+    double supply_current_limit = this->get_parameter("stator_current_limit").as_double();
+    fx_config.CurrentLimits.SupplyCurrentLimit = supply_current_limit;
+
+    double low_supply_current_limit = this->get_parameter("low_supply_current_limit").as_double();
+    fx_config.CurrentLimits.SupplyCurrentLowerLimit = low_supply_current_limit;
+
+    double low_supply_current_time = this->get_parameter("low_supply_current_time").as_double();
+    fx_config.CurrentLimits.SupplyCurrentLowerTime =low_supply_current_time ;
+
+
     motor->GetConfigurator().Apply(fx_config);
 
     // motor->SetNeutralMode(signals::NeutralModeValue::Coast);
