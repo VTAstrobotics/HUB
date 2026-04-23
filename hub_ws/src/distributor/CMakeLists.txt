@@ -16,6 +16,7 @@ find_package(sensor_msgs REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 add_executable(distributor_node src/distributor.cpp)
+
 target_include_directories(distributor_node PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   

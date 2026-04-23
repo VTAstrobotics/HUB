@@ -24,7 +24,7 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
   {
     RCLCPP_ERROR(this->get_logger(), "We have not paid for this feature L");
   }
-  else if (abs(msg->position.data) > EPS) // this might cause an issue since we cannot send 0
+  else if (abs(msg->position.data) > EPS) // TODO this might cause an issue since we cannot send 0 
   {
 
     // TODO: add position control
