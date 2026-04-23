@@ -19,8 +19,8 @@ using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
 #define DIG_DEPOSIT_POSITION 0.31f
 #define DIG_COLLECT_POSITION -0.1f
-#define DIG_STOW_POSITION 0.0f
-#define DIG_THRESHOLD 1.0f
+#define DIG_STOW_POSITION 0.32f
+#define DIG_THRESHOLD 0.01f
 
 /* TODO
 Add can, brake mode, and PID constants to launch file for dig motor, also inversion
@@ -56,7 +56,7 @@ public:
 
         dig_publisher_ =
             this->create_publisher<motor_messages::msg::Command>("/dig/control", 10);
-        RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
+        RCLCPP_INFO(this->get_logger(), "Dig action server started");
     }
 
 private:
@@ -153,6 +153,8 @@ private:
             feedback->positions.clear();
             feedback->positions.push_back(dig_position_);
             goal_handle->publish_feedback(feedback);
+            RCLCPP_INFO(this->get_logger(), "Current dig position: %.4f", dig_position_);
+            RCLCPP_INFO(this->get_logger(), "Current dig target: %.4f", target);
 
             if (std::fabs(dig_position_ - target) <= DIG_THRESHOLD) // publish feedback until position is reached, then exit
             {
@@ -176,11 +178,11 @@ private:
     }
 };
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
-  rclcpp::init(argc, argv);
-  auto node = std::make_shared<DigActionServer>(rclcpp::NodeOptions{});
-  rclcpp::spin(node);
-  rclcpp::shutdown();
-  return 0;
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<DigActionServer>(rclcpp::NodeOptions{});
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+    return 0;
 }
