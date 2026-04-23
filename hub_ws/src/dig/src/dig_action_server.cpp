@@ -19,7 +19,7 @@ using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
 #define DIG_DEPOSIT_POSITION 0.31f
 #define DIG_COLLECT_POSITION -0.1f
-#define DIG_STOW_POSITION 0.32f
+#define DIG_STOW_POSITION 0.1f
 #define DIG_THRESHOLD 0.01f
 
 /* TODO
@@ -50,12 +50,12 @@ public:
 
         dig_feedback_subscriber_ =
             this->create_subscription<motor_messages::msg::Feedback>(
-                "/dig/status",
+                "/dig_motor/status",
                 10,
                 std::bind(&DigActionServer::dig_status_callback, this, _1));
 
         dig_publisher_ =
-            this->create_publisher<motor_messages::msg::Command>("/dig/control", 10);
+            this->create_publisher<motor_messages::msg::Command>("/dig_motor/control", 10);
         RCLCPP_INFO(this->get_logger(), "Dig action server started");
     }
 
@@ -163,7 +163,8 @@ private:
                 RCLCPP_INFO(this->get_logger(), "Goal succeeded");
                 return;
             }
-
+            
+            dig_publisher_->publish(dig_msg);
             loop_rate.sleep();
         }
 

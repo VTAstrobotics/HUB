@@ -29,20 +29,15 @@ def generate_launch_description():
                 {"kG": 0.3496}, 
                 {"kP": 25.0}, 
                 {"arm_cosine": True},
+                {"closed_loop_ramp_rate": 0.8},
                 {"brake": True},],
     arguments=["--ros-args",
                "-r",
                "__node:=dig_motor_controller"]
     )
 
-    foxglove_studio = Node(
-        package="foxglove_bridge",
-        executable="foxglove_bridge",
-        name="foxglove_bridge"
-    )
 
     return LaunchDescription([
         spawn_dig_auto,
-        spawn_dig_motor,
-        foxglove_studio,
+        spawn_dig_motor
     ])

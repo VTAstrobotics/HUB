@@ -38,6 +38,7 @@ public:
     this->declare_parameter<float>("kD", 0);
     this->declare_parameter<float>("kG", 0);
     this->declare_parameter<int>("encoder_canID", 0);
+    this->declare_parameter<float>("closed_loop_ramp_rate",0.0);
 
     this->declare_parameter<bool>("arm_cosine", false);
     this->declare_parameter<bool>("brake", false);
@@ -65,7 +66,13 @@ public:
     double kD = this->get_parameter("kD").as_double();
     fx_config.Slot0.kD = kD;
     double kG = this->get_parameter("kG").as_double();
+
+
     fx_config.Slot0.kG = kG;
+
+    double closed_loop_ramp_rate = this->get_parameter("closed_loop_ramp_rate").as_double();
+    fx_config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = static_cast<units::time::second_t>(closed_loop_ramp_rate);
+
     motor->GetConfigurator().Apply(fx_config);
 
     // motor->SetNeutralMode(signals::NeutralModeValue::Coast);
