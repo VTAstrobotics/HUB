@@ -26,8 +26,8 @@ def generate_launch_description():
                 {"status_topic": "/dig_motor/status"},
                 {"health_topic": "/dig_motor/health"},
                 {"encoder_canID": 24},
-                {"kG": 0.5}, #CHANGE
-                {"kP": 0.5}, #CHANGE
+                {"kG": 0.3496}, 
+                {"kP": 25.0}, 
                 {"arm_cosine": True},
                 {"brake": True},],
     arguments=["--ros-args",
