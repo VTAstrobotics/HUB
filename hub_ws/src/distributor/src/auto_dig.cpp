@@ -1,22 +1,10 @@
-#pragma once
-
-#include <atomic>
-#include <chrono>
-#include <memory>
-#include <thread>
-
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
-#include "geometry_msgs/msg/twist.hpp"
-
-#include "dig/action/motor_control.hpp"
 #include "auto_dig.hpp"
 
 AutoDig::AutoDig(rclcpp::Node *owner_node)
 {
     this->owner_node = owner_node;
     velocity_publisher_ = this->owner_node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
-    dig_client_ = rclcpp_action::create_client<MotorControl>(owner_node, "motor_control");
+    dig_client_ = rclcpp_action::create_client<dig::action::MotorControl>(owner_node, "motor_control");
 
     running = false;
     cancel_requested = false;
@@ -56,7 +44,7 @@ void AutoDig::cancel_dig()
     geometry_msgs::msg::Twist stop_msg; // all 0
     velocity_publisher_->publish(stop_msg);
 
-    GoalHandleMotor::SharedPtr goal;
+    rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr goal;
     {
         std::lock_guard<std::mutex> lock(goal_mutex);
         goal = active_goal_handle_;
@@ -174,12 +162,12 @@ bool AutoDig::send_dig_goal(int target_position)
         RCLCPP_ERROR(owner_node->get_logger(), "Dig action server unavailable");
         return false;
     }
-    MotorControl::Goal goal;
+    dig::action::MotorControl::Goal goal;
     goal.target_position = target_position;
-    rclcpp_action::Client<MotorControl>::SendGoalOptions options;
+    rclcpp_action::Client<dig::action::MotorControl>::SendGoalOptions options;
 
     options.goal_response_callback =
-        [this](GoalHandleMotor::SharedPtr goal_handle)
+        [this](rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr goal_handle)
     {
         if (!goal_handle)
         {
@@ -196,9 +184,9 @@ bool AutoDig::send_dig_goal(int target_position)
     };
 
     options.result_callback =
-        [this](const GoalHandleMotor::WrappedResult &result)
+        [this](const rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::WrappedResult &result)
     {
-        {
+        {   
             std::lock_guard<std::mutex> lock(goal_mutex);
             active_goal_handle_.reset();
         }
