@@ -88,7 +88,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
     }
 
     auto start = std::chrono::steady_clock::now();
-    auto timeout = std::chrono::seconds(5);
+    auto timeout = std::chrono::seconds(10);
 
     while (!dig_goal_succeeded)
     {
