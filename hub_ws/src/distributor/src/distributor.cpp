@@ -127,7 +127,8 @@ private:
 
     if (msg->buttons[controls.at(DIG_AUTO)])
     {
-      auto_dig_ptr->auto_dig(10);
+      if(!auto_dig_ptr->is_running())
+        auto_dig_ptr->auto_dig(10);
     }
 
     if (msg->buttons[controls.at(DIG_AUTO_CANCEL)])

@@ -16,6 +16,12 @@ def generate_launch_description():
         parameters=[]
     )
 
+    spawn_dig_auto_node = Node(package="dig",            
+        executable="dig_action_server",
+        name="dig_action_server",
+        parameters=[]
+    )
+
     
 
     spawn_dig_motor = Node(package = "motor_control",
@@ -36,15 +42,10 @@ def generate_launch_description():
 
 
 
-    # foxglove_studio = Node(
-    #     package="foxglove_bridge",
-    #     executable="foxglove_bridge",
-    #     name="foxglove_bridge"
-    # )
-
     return LaunchDescription([
         spawn_dig_teleop,
-        spawn_dig_motor
+        spawn_dig_motor,
+        spawn_dig_auto_node
         # foxglove_studio,
     ])
 

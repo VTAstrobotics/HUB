@@ -36,6 +36,7 @@ void AutoDig::auto_dig(float drive_time_seconds)
 
     driver_thread = std::thread([this, drive_time_seconds]()
                                 { run_auto_dig(drive_time_seconds); });
+    RCLCPP_INFO(owner_node->get_logger(), "Auto dig thread created");
 }
 
 void AutoDig::cancel_dig()
@@ -67,7 +68,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
     cancel_requested = false;
     dig_goal_succeeded = false;
 
-    RCLCPP_INFO(owner_node->get_logger(), "Starting autodig");
+    RCLCPP_INFO(owner_node->get_logger(), "Starting autodig!");
     bool dig_status = send_dig_goal(0);
     if (!dig_status)
     {
@@ -90,6 +91,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
             RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
             dig_goal_succeeded = false;
             running = false;
+            cancel_dig();
             return;
         }
 
@@ -116,6 +118,8 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
         }
 
         velocity_publisher_->publish(cmd);
+        RCLCPP_INFO(owner_node->get_logger(), "Auto drive initiated");
+
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
@@ -141,6 +145,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
             RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
             dig_goal_succeeded = false;
             running = false;
+            cancel_dig();
             return;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -151,7 +156,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
         running = false;
         RCLCPP_WARN(owner_node->get_logger(), "Autodig canceled during drive");
         return;
-    }
+    } 
     running = false;
 }
 
@@ -159,7 +164,7 @@ bool AutoDig::send_dig_goal(int target_position)
 {
     if (!dig_client_->wait_for_action_server(std::chrono::seconds(1)))
     {
-        RCLCPP_ERROR(owner_node->get_logger(), "Dig action server unavailable");
+        RCLCPP_ERROR(owner_node->get_logger(), "DIG ACTION SERVER NOT LAUNCHED");
         return false;
     }
     dig::action::MotorControl::Goal goal;
@@ -186,7 +191,7 @@ bool AutoDig::send_dig_goal(int target_position)
     options.result_callback =
         [this](const rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::WrappedResult &result)
     {
-        {   
+        {
             std::lock_guard<std::mutex> lock(goal_mutex);
             active_goal_handle_.reset();
         }

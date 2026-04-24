@@ -24,6 +24,12 @@ def generate_launch_description():
         package="distributor",
         executable="distributor_node",
         name="distributor_node",
+    )   
+
+    foxglove_studio = Node(
+        package="foxglove_bridge",
+        executable="foxglove_bridge",
+        name="foxglove_bridge"
     )
 
     return LaunchDescription(
@@ -37,5 +43,6 @@ def generate_launch_description():
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             spawn_distributor_node,
+            foxglove_studio
         ]
     )
