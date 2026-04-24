@@ -86,7 +86,6 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
         running = false;
         return;
     }
-
     auto start = std::chrono::steady_clock::now();
     auto timeout = std::chrono::seconds(10);
 
@@ -149,7 +148,6 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
             running = false;
             return;
         }
-
         if (std::chrono::steady_clock::now() - start > timeout)
         {
             RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
@@ -157,7 +155,6 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
             running = false;
             return;
         }
-
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 

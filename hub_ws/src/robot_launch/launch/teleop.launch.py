@@ -16,7 +16,7 @@ def generate_launch_description():
     drive_share = get_package_share_directory("drive")
     dump_share = get_package_share_directory("dump")
 
-    dig_launch = os.path.join(dig_share, "launch", "dig.launch.py")
+    dig_launch = os.path.join(dig_share, "launch", "dig_teleop.launch.py")
     drive_launch = os.path.join(drive_share, "launch", "old_drive.launch.py")
     dump_launch = os.path.join(dump_share, "launch", "dump.launch.py")
 
