@@ -102,7 +102,10 @@ private:
     geometry_msgs::msg::Twist cmd;    // create a variable of type Twist to hold the velocity
     cmd.linear.x = lin;               // assigning the linear x vlaue to lin
     cmd.angular.z = ang;              // assigning the angular z value to ang
-    velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
+
+    if(!auto_dig_ptr->is_running()){
+      velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
+    }
 
     float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.15;
     float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.15;
@@ -110,7 +113,9 @@ private:
     double dig_duty = (dig_up - dig_down) * 0.5; // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
+    if(!auto_dig_ptr->is_running()){
     dig_publisher->publish(duty_msg);
+    }
 
     double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
     duty_msg.data = dump_actuator_duty;
@@ -177,7 +182,6 @@ private:
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
 
-  bool dig_auto_started;
 
   // rclcpp::Timer timer_
 };
