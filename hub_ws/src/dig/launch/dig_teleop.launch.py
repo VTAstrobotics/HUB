@@ -33,7 +33,12 @@ def generate_launch_description():
                 {"control_topic": "/dig_motor/control"},
                 {"status_topic": "/dig_motor/status"},
                 {"health_topic": "/dig_motor/health"},
-                {"brake": True}],
+                {"encoder_canID": 24},
+                {"kG": 0.3496}, 
+                {"kP": 25.0}, 
+                {"arm_cosine": True},
+                {"closed_loop_ramp_rate": 0.8},
+                {"brake": True},],
                 #TODO add KG Vals and such
     arguments=["--ros-args",
                "-r",
