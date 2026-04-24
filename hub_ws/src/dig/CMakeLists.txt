@@ -12,6 +12,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(motor_messages REQUIRED)
 find_package(motor_control REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/MotorControl.action"
@@ -20,11 +21,21 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 add_executable(dig_action_server
   src/dig_action_server.cpp)
 
+add_executable(dig_teleop_node src/dig_teleop.cpp src/motor.cpp)
+
+
 ament_target_dependencies(dig_action_server
   rclcpp
   rclcpp_action
   motor_messages
   motor_control
+)
+
+ament_target_dependencies(dig_teleop_node
+  rclcpp
+  std_msgs
+  motor_messages
+  geometry_msgs
 )
 
 rosidl_get_typesupport_target(cpp_typesupport_target
@@ -37,6 +48,10 @@ target_link_libraries(dig_action_server
 install(TARGETS
   dig_action_server
   DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS dig_teleop_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
