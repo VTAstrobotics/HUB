@@ -9,6 +9,7 @@
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "map.h"
+#include "auto_dig.hpp"
 
 #define TIMEOUT 10.0
 
@@ -40,6 +41,8 @@ public:
   Distributor()
       : Node("Distributor_node") // name of the node
   {
+    auto_dig_ptr = std::make_shared<AutoDig>(this); // threaded auto dig
+
     joy_subscriber = this->create_subscription<sensor_msgs::msg::Joy>( // Creating the subscriber to the Joy topic
         "/joy", 10, std::bind(&Distributor::joy_callback, this, _1));
 
@@ -67,6 +70,9 @@ public:
     this->declare_parameter("ANGULAR_SCALE", 0.6);
     this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
+    this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
+    this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
+
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
     OPEN_DOOR = this->get_parameter("OPEN_DOOR").as_string();
@@ -80,6 +86,9 @@ public:
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
 
     ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
+
+    DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
+    DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -110,6 +119,16 @@ private:
     double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.07; // limit duty cyle;
     duty_msg.data = dump_door_duty;
     dump_bucket_publisher->publish(duty_msg);
+
+    if (msg->buttons[controls.at(DIG_AUTO)])
+    {
+      auto_dig_ptr->auto_dig(10);
+    }
+
+    if (msg->buttons[controls.at(DIG_AUTO_CANCEL)])
+    {
+      auto_dig_ptr->cancel_dig();
+    }
 
     // std_msgs::msg::Int32 homing_msg;
     // int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
@@ -153,6 +172,12 @@ private:
   std::string DIG_UP;
   std::string DIG_DOWN;
   std::string ACTUATOR_HOMING;
+  std::string DIG_AUTO;
+  std::string DIG_AUTO_CANCEL;
+
+  std::shared_ptr<AutoDig> auto_dig_ptr;
+
+  bool dig_auto_started;
 
   // rclcpp::Timer timer_
 };
