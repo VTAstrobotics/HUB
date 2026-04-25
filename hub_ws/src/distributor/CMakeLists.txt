@@ -13,11 +13,12 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(dig REQUIRED)
+find_package(dump REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(distributor_node src/distributor.cpp src/auto_dig.cpp)
+add_executable(distributor_node src/distributor.cpp src/auto_dig.cpp src/auto_dump.cpp)
 
 target_include_directories(distributor_node PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -32,6 +33,7 @@ ament_target_dependencies(distributor_node
   std_msgs
   sensor_msgs
   dig
+  dump
 )
 install(TARGETS distributor_node
   DESTINATION lib/${PROJECT_NAME}

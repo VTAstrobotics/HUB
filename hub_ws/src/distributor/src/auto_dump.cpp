@@ -126,6 +126,7 @@ bool AutoDump::send_dump_goal(int goal_position)
         {
             std::lock_guard<std::mutex> lock(goal_mutex);
             active_goal_handle_.reset();
+
         }
         if (result.code == rclcpp_action::ResultCode::SUCCEEDED)
         {
