@@ -73,16 +73,16 @@ public:
     fx_config.Slot0.kG = kG;
 
     double stator_current_limit = this->get_parameter("stator_current_limit").as_double();
-    fx_config.CurrentLimits.StatorCurrentLimit = stator_current_limit;
+    fx_config.CurrentLimits.StatorCurrentLimit = static_cast<units::ampere_t>(stator_current_limit);
 
     double supply_current_limit = this->get_parameter("stator_current_limit").as_double();
-    fx_config.CurrentLimits.SupplyCurrentLimit = supply_current_limit;
+    fx_config.CurrentLimits.SupplyCurrentLimit = static_cast<units::ampere_t>(supply_current_limit);
 
     double low_supply_current_limit = this->get_parameter("low_supply_current_limit").as_double();
-    fx_config.CurrentLimits.SupplyCurrentLowerLimit = low_supply_current_limit;
+    fx_config.CurrentLimits.SupplyCurrentLowerLimit = static_cast<units::ampere_t>(low_supply_current_limit);
 
     double low_supply_current_time = this->get_parameter("low_supply_current_time").as_double();
-    fx_config.CurrentLimits.SupplyCurrentLowerTime =low_supply_current_time ;
+    fx_config.CurrentLimits.SupplyCurrentLowerTime = static_cast<units::second_t>(low_supply_current_time) ;
 
 
     motor->GetConfigurator().Apply(fx_config);
