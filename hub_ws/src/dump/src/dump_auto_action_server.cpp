@@ -14,9 +14,9 @@
 #define DOOR_HOME_POSITION 0
 #define ACTUATOR_HOME_POSITION 0
 #define DOOR_DUMP_POSITION 0
-#define ACTUATOR_DUMP_POSITION 0.157
+#define ACTUATOR_DUMP_POSITION 0.150
 #define DOOR_POSITION_THRESHOLD 1
-#define ACTUATOR_POSITION_THRESHOLD 0.02
+#define ACTUATOR_POSITION_THRESHOLD 0.010
 
 #define DOOR_DUTY_CYCLE 0.1
 #define ACTUATOR_DUTY_CYCLE 1.0
@@ -193,7 +193,7 @@ private:
                 // {
                 //     door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
                 // }
-                if (fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD)
+                if ((fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD) ||  actuator_position > ACTUATOR_DUMP_POSITION )
                 {
                     actuator_complete = true;
                     RCLCPP_INFO(this->get_logger(), "Actuator Done");
