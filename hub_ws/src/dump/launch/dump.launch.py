@@ -65,6 +65,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            spawn_dump_auto, 
             spawn_dump_teleop,
             spawn_dump_door_motor,
             spawn_dump_linear_actuator,

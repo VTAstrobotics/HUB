@@ -10,6 +10,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "map.h"
 #include "auto_dig.hpp"
+#include "auto_dump.hpp"
 
 #define TIMEOUT 10.0
 
@@ -32,6 +33,7 @@ public:
 
 private:
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+  
 };
 
 using std::placeholders::_1;
@@ -42,6 +44,7 @@ public:
       : Node("Distributor_node") // name of the node
   {
     auto_dig_ptr = std::make_shared<AutoDig>(this); // threaded auto dig
+    auto_dump_ptr = std::make_shared<AutoDump>(this); //threaded auto dump
 
     joy_subscriber = this->create_subscription<sensor_msgs::msg::Joy>( // Creating the subscriber to the Joy topic
         "/joy", 10, std::bind(&Distributor::joy_callback, this, _1));
@@ -72,6 +75,10 @@ public:
 
     this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
     this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
+    
+    this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
+    this->declare_parameter("DUMP_HOME", "BUTTON_START");
+    this->declare_parameter("DUMP_CANCEL", "BUTTON_BACK");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
@@ -89,6 +96,13 @@ public:
 
     DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
     DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
+
+    //dump buttons declared
+    DUMP_DEPOSIT = this->get_parameter("DUMP_DEPOSIT").as_string();
+    DUMP_HOME = this->get_parameter("DUMP_HOME").as_string();
+    DUMP_CANCEL = this->get_parameter("DUMP_CANCEL").as_string();
+
+    
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -136,6 +150,23 @@ private:
       auto_dig_ptr->cancel_dig();
     }
 
+    //For DUMP
+
+    if (msg->buttons[controls.at(DUMP_DEPOSIT)])
+    {
+     if (!auto_dump_ptr->is_running())
+        auto_dump_ptr->auto_dump(1);
+    }
+   if (msg->buttons[controls.at(DUMP_HOME)])
+    {
+      if (!auto_dump_ptr->is_running())
+         auto_dump_ptr->auto_dump(0);
+     }
+   if (msg->buttons[controls.at(DUMP_CANCEL)])
+     {
+      auto_dump_ptr->cancel_dump();
+    }
+
     // std_msgs::msg::Int32 homing_msg;
     // int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
     // homing_msg.data = actuator_homing;
@@ -180,9 +211,13 @@ private:
   std::string ACTUATOR_HOMING;
   std::string DIG_AUTO;
   std::string DIG_AUTO_CANCEL;
+  std::string DUMP_DEPOSIT;
+  std::string DUMP_HOME;
+  std::string DUMP_CANCEL;
+  
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
-
+  std::shared_ptr<AutoDump> auto_dump_ptr;
 
   // rclcpp::Timer timer_
 };
