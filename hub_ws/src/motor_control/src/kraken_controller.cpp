@@ -10,8 +10,11 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
 {
 
   constexpr float EPS = 1e-6f;
-
-  if (abs(msg->dutycycle.data) > EPS)
+  if (follower != nullptr)
+  {
+    this->motor->SetControl(this->follower);
+  }
+  else if (abs(msg->dutycycle.data) > EPS)
   {
     this->outDuty.Output = msg->dutycycle.data;
 
