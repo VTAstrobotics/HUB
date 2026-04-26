@@ -89,6 +89,7 @@ public:
 
   void make_slew_rate_limiters(){
     linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
+    dig_slew_rate_limiter = new slew_rate_limiter{0.3, this->shared_from_this()};
   }
 
 private:
@@ -97,7 +98,7 @@ private:
   void joy_callback(sensor_msgs::msg::Joy::SharedPtr msg)
   {
     
-    double lin = linear_slew_rate_limiter->calculate(msg->axes[controls.at(TRANSLATION_CONTROL)] * linear_scale);
+    double lin = linear_slew_rate_limiter->calculate(msg->axes[controls.at(TRANSLATION_CONTROL)]) * linear_scale;
     double ang = msg->axes[controls.at(ROTATION_CONTROL)] * angular_scale;
 
     geometry_msgs::msg::Twist cmd;    // create a variable of type Twist to hold the velocity
@@ -108,7 +109,7 @@ private:
     float dig_up = (-1 * msg->axes[controls.at(DIG_UP)] + 1) * 0.15;
     float dig_down = (-1 * msg->axes[controls.at(DIG_DOWN)] + 1) * 0.15;
 
-    double dig_duty = (dig_up - dig_down) * 0.5; // limit duty cycle
+    double dig_duty = dig_slew_rate_limiter->calculate((dig_up - dig_down) * 0.5); // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
     dig_publisher->publish(duty_msg);
@@ -164,6 +165,7 @@ private:
   std::string DIG_DOWN;
   std::string ACTUATOR_HOMING;
   slew_rate_limiter* linear_slew_rate_limiter;
+  slew_rate_limiter* dig_slew_rate_limiter;
   
 
   // rclcpp::Timer timer_

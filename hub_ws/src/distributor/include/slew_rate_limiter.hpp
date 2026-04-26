@@ -25,13 +25,13 @@ class slew_rate_limiter{
 
         rclcpp::Time current_time = node->get_clock()->now(); 
 
-        auto sign = input > 0 ? 1 : -1;
-        float new_value = sign * std::min(std::abs(input), std::abs(prev_value) + max_change * (current_time - previous_time).seconds());        
+        auto elapsed_time = (current_time - previous_time).seconds();
+        prev_value += std::clamp(input - prev_value, -max_change * elapsed_time,
+                   max_change * elapsed_time);    
 
         previous_time = current_time;
-        prev_value = new_value;
         
-        return new_value;
+        return prev_value;
     };
 
 };
