@@ -9,6 +9,7 @@
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "map.h"
+#include "slew_rate_limiter.hpp"
 
 #define TIMEOUT 10.0
 
@@ -50,6 +51,7 @@ public:
     dump_bucket_publisher = this->create_publisher<std_msgs::msg::Float32>("/dump_bucket_teleop", 10);
 
     actuator_homing_publisher = this->create_publisher<std_msgs::msg::Int32>("/actuator_homing", 10);
+
     // uses the joy_callback to recieve the message from the subscriber and publish it to the /joy topic
     timer_ = this->create_wall_timer(
         std::chrono::milliseconds(500),
@@ -81,13 +83,21 @@ public:
 
     ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
 
+
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
 
+  void make_slew_rate_limiters(){
+    linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
+  }
+
 private:
+
+
   void joy_callback(sensor_msgs::msg::Joy::SharedPtr msg)
   {
-    double lin = msg->axes[controls.at(TRANSLATION_CONTROL)] * linear_scale;
+    
+    double lin = linear_slew_rate_limiter->calculate(msg->axes[controls.at(TRANSLATION_CONTROL)] * linear_scale);
     double ang = msg->axes[controls.at(ROTATION_CONTROL)] * angular_scale;
 
     geometry_msgs::msg::Twist cmd;    // create a variable of type Twist to hold the velocity
@@ -153,6 +163,8 @@ private:
   std::string DIG_UP;
   std::string DIG_DOWN;
   std::string ACTUATOR_HOMING;
+  slew_rate_limiter* linear_slew_rate_limiter;
+  
 
   // rclcpp::Timer timer_
 };
@@ -160,7 +172,9 @@ private:
 int main(int argc, char *argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Distributor>());
+  auto distributor = std::make_shared<Distributor>();
+  distributor->make_slew_rate_limiters();
+  rclcpp::spin(distributor);
   rclcpp::shutdown();
   return 0;
 }
