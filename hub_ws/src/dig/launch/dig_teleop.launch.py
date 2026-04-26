@@ -37,7 +37,7 @@ def generate_launch_description():
                 {"kG": 0.08}, 
                 {"kP": 18.0}, 
                 {"arm_cosine": True},
-                # {"closed_loop_ramp_rate": 0.8},
+                {"closed_loop_ramp_rate": 0.8},
                 {"brake": True}, 
                 ],
                 #TODO add KG Vals and such
@@ -46,13 +46,13 @@ def generate_launch_description():
                "__node:=dig_motor_teleop_controller"]
     )
 
-    spawn_dig_motor = Node(package = "motor_control",
+    spawn_dig_motor_2 = Node(package = "motor_control",
     executable = "kraken_control_node",
     name = "kraken_control_node",
     parameters=[{"motor_name": "dig_motor"},
                 {"can_interface": "can1"},
                 {"can_id": 25},
-                {"control_topic": "/dig_motor_child/control"},
+                {"control_topic": "/dig_motor/control"},
                 {"status_topic": "/dig_motor_child/status"},
                 {"health_topic": "/dig_motor_child/health"},
                 {"leader_id": 23},
@@ -67,6 +67,7 @@ def generate_launch_description():
     return LaunchDescription([
         spawn_dig_teleop,
         spawn_dig_motor,
+        spawn_dig_motor_2,
         spawn_dig_auto_node
         # foxglove_studio,
     ])

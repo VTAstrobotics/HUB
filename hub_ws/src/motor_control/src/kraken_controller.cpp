@@ -22,7 +22,7 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
     ctre::phoenix::unmanaged::FeedEnable(100);
 
     RCLCPP_INFO(this->get_logger(), "SetControl status: %s", status.GetName());
-  }
+  } 
   else if (abs(msg->current.data) > EPS)
   {
     RCLCPP_ERROR(this->get_logger(), "We have not paid for this feature L");

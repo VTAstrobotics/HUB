@@ -33,7 +33,6 @@ public:
 
 private:
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-  
 };
 
 using std::placeholders::_1;
@@ -43,8 +42,8 @@ public:
   Distributor()
       : Node("Distributor_node") // name of the node
   {
-    auto_dig_ptr = std::make_shared<AutoDig>(this); // threaded auto dig
-    auto_dump_ptr = std::make_shared<AutoDump>(this); //threaded auto dump
+    auto_dig_ptr = std::make_shared<AutoDig>(this);   // threaded auto dig
+    auto_dump_ptr = std::make_shared<AutoDump>(this); // threaded auto dump
 
     joy_subscriber = this->create_subscription<sensor_msgs::msg::Joy>( // Creating the subscriber to the Joy topic
         "/joy", 10, std::bind(&Distributor::joy_callback, this, _1));
@@ -75,7 +74,7 @@ public:
 
     this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
     this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
-    
+
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
     this->declare_parameter("DUMP_HOME", "BUTTON_START");
     this->declare_parameter("DUMP_CANCEL", "BUTTON_BACK");
@@ -97,12 +96,10 @@ public:
     DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
     DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
 
-    //dump buttons declared
+    // dump buttons declared
     DUMP_DEPOSIT = this->get_parameter("DUMP_DEPOSIT").as_string();
     DUMP_HOME = this->get_parameter("DUMP_HOME").as_string();
     DUMP_CANCEL = this->get_parameter("DUMP_CANCEL").as_string();
-
-    
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -113,11 +110,12 @@ private:
     double lin = msg->axes[controls.at(TRANSLATION_CONTROL)] * linear_scale;
     double ang = msg->axes[controls.at(ROTATION_CONTROL)] * angular_scale;
 
-    geometry_msgs::msg::Twist cmd;    // create a variable of type Twist to hold the velocity
-    cmd.linear.x = lin;               // assigning the linear x vlaue to lin
-    cmd.angular.z = ang;              // assigning the angular z value to ang
+    geometry_msgs::msg::Twist cmd; // create a variable of type Twist to hold the velocity
+    cmd.linear.x = lin;            // assigning the linear x vlaue to lin
+    cmd.angular.z = ang;           // assigning the angular z value to ang
 
-    if(!auto_dig_ptr->is_running()){
+    if (!auto_dig_ptr->is_running())
+    {
       velocity_publisher->publish(cmd); // publishing the cmd variable to the /cmd_vel topic
     }
 
@@ -127,13 +125,17 @@ private:
     double dig_duty = (dig_up - dig_down) * 0.5; // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
-    if(!auto_dig_ptr->is_running()){
-    dig_publisher->publish(duty_msg);
+    if (!auto_dig_ptr->is_running())
+    {
+      dig_publisher->publish(duty_msg);
     }
 
     double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
-    duty_msg.data = dump_actuator_duty;
-    dump_actuator_publisher->publish(duty_msg);
+    if (!auto_dump_ptr->is_running())
+    {
+      duty_msg.data = dump_actuator_duty;
+      dump_actuator_publisher->publish(duty_msg);
+    }
 
     double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.07; // limit duty cyle;
     duty_msg.data = dump_door_duty;
@@ -141,7 +143,7 @@ private:
 
     if (msg->buttons[controls.at(DIG_AUTO)])
     {
-      if(!auto_dig_ptr->is_running())
+      if (!auto_dig_ptr->is_running())
         auto_dig_ptr->auto_dig(2.5);
     }
 
@@ -150,20 +152,20 @@ private:
       auto_dig_ptr->cancel_dig();
     }
 
-    //For DUMP
+    // For DUMP
 
     if (msg->buttons[controls.at(DUMP_DEPOSIT)])
     {
-     if (!auto_dump_ptr->is_running())
+      if (!auto_dump_ptr->is_running())
         auto_dump_ptr->auto_dump(1);
     }
-   if (msg->buttons[controls.at(DUMP_HOME)])
+    if (msg->buttons[controls.at(DUMP_HOME)])
     {
       if (!auto_dump_ptr->is_running())
-         auto_dump_ptr->auto_dump(0);
-     }
-   if (msg->buttons[controls.at(DUMP_CANCEL)])
-     {
+        auto_dump_ptr->auto_dump(0);
+    }
+    if (msg->buttons[controls.at(DUMP_CANCEL)])
+    {
       auto_dump_ptr->cancel_dump();
     }
 
