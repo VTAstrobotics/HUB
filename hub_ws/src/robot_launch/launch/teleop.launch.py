@@ -32,17 +32,32 @@ def generate_launch_description():
         name="foxglove_bridge"
     )
 
-    return LaunchDescription(
-        [
-            ExecuteProcess(
-            cmd=['bash', '../../../launch_scripts/can_startup.sh'],
-            # prefix=['sudo'],
-            output='screen'
-            ),
+    try: 
+        zed_wrapper_dir = get_package_share_directory("zed_wrapper")
+        zed_launch =  os.path.join(zed_wrapper_dir, 'launch', 'zed_camera.launch.py')
+        found_zed = True
+    except:
+        found_zed = False
+
+
+    nodes = [
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dig_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             spawn_distributor_node,
-            foxglove_studio
+            foxglove_studio,
         ]
+
+    if found_zed:
+        nodes.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(zed_launch),
+                launch_arguments={
+                    'camera_model': 'zedm'
+                }.items()
+            )
+    )
+
+    return LaunchDescription(
+            nodes
     )
