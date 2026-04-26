@@ -214,7 +214,6 @@ private:
   std::string DUMP_DEPOSIT;
   std::string DUMP_HOME;
   std::string DUMP_CANCEL;
-  
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
   std::shared_ptr<AutoDump> auto_dump_ptr;

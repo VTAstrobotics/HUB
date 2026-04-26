@@ -33,19 +33,36 @@ def generate_launch_description():
                 {"control_topic": "/dig_motor/control"},
                 {"status_topic": "/dig_motor/status"},
                 {"health_topic": "/dig_motor/health"},
-                {"encoder_canID": 24},
-                {"kG": 0.3496}, 
-                {"kP": 25.0}, 
+                {"encoder_canID": 24}, 
+                {"kG": 0.08}, 
+                {"kP": 18.0}, 
                 {"arm_cosine": True},
-                {"closed_loop_ramp_rate": 0.8},
-                {"brake": True},],
+                # {"closed_loop_ramp_rate": 0.8},
+                {"brake": True}, 
+                ],
                 #TODO add KG Vals and such
     arguments=["--ros-args",
                "-r",
                "__node:=dig_motor_teleop_controller"]
     )
 
-
+    spawn_dig_motor = Node(package = "motor_control",
+    executable = "kraken_control_node",
+    name = "kraken_control_node",
+    parameters=[{"motor_name": "dig_motor"},
+                {"can_interface": "can1"},
+                {"can_id": 25},
+                {"control_topic": "/dig_motor/control"},
+                {"status_topic": "/dig_motor/status"},
+                {"health_topic": "/dig_motor/health"},
+                {"leader_id": 23},
+                {"brake": True}, 
+                ],
+                #TODO add KG Vals and such
+    arguments=["--ros-args",
+               "-r",
+               "__node:=dig_motor_teleop_controller"]
+    )
 
     return LaunchDescription([
         spawn_dig_teleop,
