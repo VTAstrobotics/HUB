@@ -16,7 +16,7 @@ def generate_launch_description():
     drive_share = get_package_share_directory("drive")
     dump_share = get_package_share_directory("dump")
 
-    dig_launch = os.path.join(dig_share, "launch", "dig.launch.py")
+    dig_launch = os.path.join(dig_share, "launch", "dig_teleop.launch.py")
     drive_launch = os.path.join(drive_share, "launch", "old_drive.launch.py")
     dump_launch = os.path.join(dump_share, "launch", "dump.launch.py")
 
@@ -24,18 +24,40 @@ def generate_launch_description():
         package="distributor",
         executable="distributor_node",
         name="distributor_node",
+    )   
+
+    foxglove_studio = Node(
+        package="foxglove_bridge",
+        executable="foxglove_bridge",
+        name="foxglove_bridge"
     )
 
-    return LaunchDescription(
-        [
-            ExecuteProcess(
-            cmd=['bash', '../../../launch_scripts/can_startup.sh'],
-            # prefix=['sudo'],
-            output='screen'
-            ),
+    try: 
+        zed_wrapper_dir = get_package_share_directory("zed_wrapper")
+        zed_launch =  os.path.join(zed_wrapper_dir, 'launch', 'zed_camera.launch.py')
+        found_zed = True
+    except:
+        found_zed = False
+
+
+    nodes = [
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dig_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             spawn_distributor_node,
+            foxglove_studio,
         ]
+
+    if found_zed:
+        nodes.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(zed_launch),
+                launch_arguments={
+                    'camera_model': 'zedm'
+                }.items()
+            )
+    )
+
+    return LaunchDescription(
+            nodes
     )

@@ -14,9 +14,9 @@
 #define DOOR_HOME_POSITION 0
 #define ACTUATOR_HOME_POSITION 0
 #define DOOR_DUMP_POSITION 0
-#define ACTUATOR_DUMP_POSITION 0.1464
+#define ACTUATOR_DUMP_POSITION 0.150
 #define DOOR_POSITION_THRESHOLD 1
-#define ACTUATOR_POSITION_THRESHOLD 0.001
+#define ACTUATOR_POSITION_THRESHOLD 0.010
 
 #define DOOR_DUTY_CYCLE 0.1
 #define ACTUATOR_DUTY_CYCLE 1.0
@@ -66,7 +66,7 @@ private:
     float door_position = 0;
     float actuator_position = 0;
 
-    rclcpp::Time last_goal_time;
+    rclcpp::Time last_goal_time = this->get_clock()->now();
     rclcpp::Duration min_interval{1, 0};
 
     std::shared_ptr<GoalHandleDump> active_goal;
@@ -107,11 +107,11 @@ private:
         // this needs to return quickly to avoid blocking the executor, so spin up a new thread
         std::lock_guard<std::mutex> lock(goal_mutex);
 
-        if (active_goal)
-        {
-            auto result = std::make_shared<Dump::Result>();
-            active_goal->canceled(result);
-        }
+        // if (active_goal)
+        // {
+        //     auto result = std::make_shared<Dump::Result>();
+            // active_goal->canceled(result);
+        // }
 
         active_goal = goal_handle;
 
@@ -144,7 +144,9 @@ private:
                     door_duty_publisher->publish(door_stop_msg);
                     linear_actuator_duty_publisher->publish(actuator_stop_msg);
                     result->final_positions = positions;
-                    goal_handle->canceled(result);
+                    if(goal_handle->is_canceling() && goal_handle->is_active()){
+                        goal_handle->canceled(result);
+                    }
                     RCLCPP_INFO(this->get_logger(), "Goal canceled");
                     return;
                 }
@@ -162,36 +164,16 @@ private:
             switch (commandedPosition)
             {
             case HOME:
-                if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
-                {
-                    door_complete = true;
-                    door_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
-                }
+                // if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
+                // {
+                //     door_complete = true;
+                //     door_msg.dutycycle.data = 0;
+                // }
+                // else
+                // {
+                //     door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
+                // }
                 if (fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD)
-                {
-                    actuator_complete = true;
-                    actuator_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    actuator_msg.dutycycle.data = -ACTUATOR_DUTY_CYCLE;
-                }
-                break;
-            case DUMP:
-                if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
-                {
-                    door_complete = true;
-                    door_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
-                }
-                if (fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD)
                 {
                     actuator_complete = true;
                     actuator_msg.dutycycle.data = 0;
@@ -201,10 +183,33 @@ private:
                     actuator_msg.dutycycle.data = ACTUATOR_DUTY_CYCLE;
                 }
                 break;
+            case DUMP:
+                // if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
+                // {
+                //     door_complete = true;
+                //     door_msg.dutycycle.data = 0;
+                // }
+                // else
+                // {
+                //     door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
+                // }
+                if ((fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD) ||  actuator_position > ACTUATOR_DUMP_POSITION )
+                {
+                    actuator_complete = true;
+                    RCLCPP_INFO(this->get_logger(), "Actuator Done");
+                    actuator_msg.dutycycle.data = 0;
+                }
+                else
+                {
+                    RCLCPP_INFO(this->get_logger(), "Actuator Running");
+                    actuator_msg.dutycycle.data = -ACTUATOR_DUTY_CYCLE;
+                }
+                break;
             }
 
             door_duty_publisher->publish(door_msg);
             linear_actuator_duty_publisher->publish(actuator_msg);
+            RCLCPP_INFO(this->get_logger(), "Actuator Running at %f",actuator_msg.dutycycle.data );
             if (door_complete && actuator_complete)
                 break;
 
@@ -227,6 +232,7 @@ private:
     void dump_actuator_status_callback(motor_messages::msg::Feedback msg)
     {
         actuator_position = msg.position.data;
+        RCLCPP_INFO(this->get_logger(), "Dump Position: %f", msg.position.data);
     }
 };
 
