@@ -13,6 +13,8 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
   if (follower != nullptr)
   {
     this->motor->SetControl(*this->follower);
+    ctre::phoenix::unmanaged::FeedEnable(100);
+
   }
   else if (abs(msg->dutycycle.data) > EPS)
   {
@@ -45,12 +47,13 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
   {
     controls::DutyCycleOut stop{0};
     this->motor->SetControl(stop);
+    ctre::phoenix::unmanaged::FeedEnable(100);
   }
 }
 
 void KrakenController::publish_status()
 {
-
+  ctre::phoenix::unmanaged::FeedEnable(100);
   motor_messages::msg::Feedback feedback;
   // RCLCPP_INFO(this->get_logger(), "Publishing Kraken motor status");
 

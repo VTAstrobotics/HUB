@@ -71,7 +71,7 @@ public:
     this->declare_parameter("OPEN_DOOR", "BUTTON_A");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.3);
-    this->declare_parameter("ANGULAR_SCALE", 0.6);
+    this->declare_parameter("ANGULAR_SCALE", 1.1);
     this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
@@ -199,8 +199,9 @@ private:
   }
 
   double linear_scale = 0.6;
-  double angular_scale = 3.0;
+  double angular_scale = 1.1;
   Stopwatch stopwatch;
+
 
   // this is where you can declare subscribers/publishers.
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher;

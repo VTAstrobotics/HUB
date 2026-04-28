@@ -107,7 +107,6 @@ public:
 
 private:
   std::unique_ptr<hardware::TalonFX> motor; // INIT just so that there are no warnings, this needs to be overridden
-
   controls::DutyCycleOut outDuty{0.0};
   controls::VelocityVoltage outVelocity{0.0_tps}; // in Turns per second
   controls::PositionVoltage outPosition{0.0_tr};
