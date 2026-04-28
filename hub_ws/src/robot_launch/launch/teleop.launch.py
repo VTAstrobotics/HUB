@@ -40,12 +40,30 @@ def generate_launch_description():
         found_zed = False
 
 
+    zed_h264_republisher = Node(
+    package='image_transport',
+    executable='republish',
+    name='zed_h264_republisher',
+    arguments=['raw', 'h264'],  # input_transport, output_transport
+    remappings=[
+        ('in',      '/zed/zed_node/left/image_rect_color'),
+        ('out/h264','/zed/zed_node/left/image_rect_color/h264'),
+    ],
+    parameters=[{
+        'h264.bit_rate': 2_000_000,    # 2 Mbps — tune to your bandwidth
+        'h264.preset':  'ultrafast',   # minimize encoding latency
+        'h264.tune':    'zerolatency',
+    }]
+)        
+
+
     nodes = [
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dig_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             spawn_distributor_node,
             foxglove_studio,
+            zed_h264_republisher
         ]
 
     if found_zed:
