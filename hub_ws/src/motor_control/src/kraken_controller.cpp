@@ -58,7 +58,7 @@ void KrakenController::publish_status()
   // RCLCPP_INFO(this->get_logger(), "Publishing Kraken motor status");
 
   feedback.current.data = this->motor->GetStatorCurrent().GetValueAsDouble();
-  feedback.is_disabled.data = false;
+  feedback.is_disabled.data = !ctre::phoenix::unmanaged::GetEnableState();;
   feedback.position.data = this->motor->GetPosition().GetValueAsDouble();
   feedback.velocity.data = this->motor->GetVelocity().GetValueAsDouble();
 
@@ -73,7 +73,7 @@ void KrakenController::publish_health()
   // Implement the logic to publish the Kraken motor health here
 
   health.current.data = this->motor->GetStatorCurrent().GetValueAsDouble();
-  health.is_failed.data = false;
+  health.is_failed.data = !ctre::phoenix::unmanaged::GetEnableState();
   health.temperature.data = this->motor->GetDeviceTemp().GetValueAsDouble();
   health.voltage.data = this->motor->GetSupplyVoltage().GetValueAsDouble();
 
