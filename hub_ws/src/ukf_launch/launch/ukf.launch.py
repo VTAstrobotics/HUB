@@ -32,7 +32,7 @@ def generate_launch_description():
         remappings=[("odometry/filtered", "odometry/filtered_aruco")],
     )
 
-    aruco_ukf_node = Node(
+    map_ukf_node = Node(
         package="robot_localization",
         executable="ukf_node",
         name="ukf_node_map",
@@ -41,5 +41,5 @@ def generate_launch_description():
         remappings=[("odometry/filtered", "odometry/filtered_map")],
     )
 
-    return LaunchDescription([ukf_node, aruco_ukf_node, aruco_ukf_node])
+    return LaunchDescription([ukf_node, map_ukf_node])
     

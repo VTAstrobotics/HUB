@@ -12,7 +12,7 @@ ukf_node_map:
     two_d_mode: true
 
 
-        odom0: /odom
+    odom0: /odom
     odom0_config: [ true,  true,  false,   # x y z
                     false, false, true,    # roll pitch yaw
                     true,  true,  false,   # vx vy vz
@@ -52,3 +52,16 @@ ukf_node_map:
     odom1_relative:     false
     odom1_queue_size:   10
     odom1_nodelay:      false
+
+
+    pose0: /zed/zed_node/pose
+    pose0_config: [ false, false, false,   # x y z (
+                   false, false,  true,   # roll pitch yaw
+                   false, false, false,   # vx vy vz
+                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false ]  # ax ay az (linear accel)
+
+    pose0_relative:      false
+    pose0_differential:  false
+    pose0_queue_size:    20
+    pose0_nodelay:       true
