@@ -13,9 +13,9 @@
 // We need to find out these places/speed when testing
 #define DOOR_HOME_POSITION 0
 #define ACTUATOR_HOME_POSITION 0
-#define DOOR_DUMP_POSITION 0
+#define DOOR_DUMP_POSITION 40.0
 #define ACTUATOR_DUMP_POSITION 0.150
-#define DOOR_POSITION_THRESHOLD 1
+#define DOOR_POSITION_THRESHOLD 1.5
 #define ACTUATOR_POSITION_THRESHOLD 0.010
 
 #define DOOR_DUTY_CYCLE 0.1
@@ -47,11 +47,11 @@ public:
             std::bind(&DumpAutoActionServer::handle_accepted, this, _1));
 
         door_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>(
-            "/dump_door/status", 10, std::bind(&DumpAutoActionServer::dump_door_status_callback, this, _1));
+            "/dump_bucket_teleop/status", 10, std::bind(&DumpAutoActionServer::dump_door_status_callback, this, _1));
         linear_actuator_feedback_subscriber = this->create_subscription<motor_messages::msg::Feedback>(
             "/dump_linear_actuator/status", 10, std::bind(&DumpAutoActionServer::dump_actuator_status_callback, this, _1));
 
-        door_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_door/control", 4);
+        door_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_bucket_teleop/control", 4);
         linear_actuator_duty_publisher = this->create_publisher<motor_messages::msg::Command>("/dump_linear_actuator/control", 4);
     }
 
@@ -110,7 +110,7 @@ private:
         // if (active_goal)
         // {
         //     auto result = std::make_shared<Dump::Result>();
-            // active_goal->canceled(result);
+        // active_goal->canceled(result);
         // }
 
         active_goal = goal_handle;
@@ -144,7 +144,8 @@ private:
                     door_duty_publisher->publish(door_stop_msg);
                     linear_actuator_duty_publisher->publish(actuator_stop_msg);
                     result->final_positions = positions;
-                    if(goal_handle->is_canceling() && goal_handle->is_active()){
+                    if (goal_handle->is_canceling() && goal_handle->is_active())
+                    {
                         goal_handle->canceled(result);
                     }
                     RCLCPP_INFO(this->get_logger(), "Goal canceled");
@@ -164,15 +165,15 @@ private:
             switch (commandedPosition)
             {
             case HOME:
-                // if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
-                // {
-                //     door_complete = true;
-                //     door_msg.dutycycle.data = 0;
-                // }
-                // else
-                // {
-                //     door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
-                // }
+                if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
+                {
+                    door_complete = true;
+                    door_msg.dutycycle.data = 0;
+                }
+                else
+                {
+                    door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
+                }
                 if (fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD)
                 {
                     actuator_complete = true;
@@ -184,16 +185,16 @@ private:
                 }
                 break;
             case DUMP:
-                // if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
-                // {
-                //     door_complete = true;
-                //     door_msg.dutycycle.data = 0;
-                // }
-                // else
-                // {
-                //     door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
-                // }
-                if ((fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD) ||  actuator_position > ACTUATOR_DUMP_POSITION )
+                if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
+                {
+                    door_complete = true;
+                    door_msg.dutycycle.data = 0;
+                }
+                else
+                {
+                    door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
+                }
+                if ((fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD) || actuator_position > ACTUATOR_DUMP_POSITION)
                 {
                     actuator_complete = true;
                     RCLCPP_INFO(this->get_logger(), "Actuator Done");
@@ -206,10 +207,11 @@ private:
                 }
                 break;
             }
-
             door_duty_publisher->publish(door_msg);
             linear_actuator_duty_publisher->publish(actuator_msg);
-            RCLCPP_INFO(this->get_logger(), "Actuator Running at %f",actuator_msg.dutycycle.data );
+            RCLCPP_INFO(this->get_logger(), "Actuator Running at %f", actuator_msg.dutycycle.data);
+
+            RCLCPP_INFO(this->get_logger(), "Door running at %f", door_msg.dutycycle.data);
             if (door_complete && actuator_complete)
                 break;
 

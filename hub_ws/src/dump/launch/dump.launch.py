@@ -35,9 +35,10 @@ def generate_launch_description():
             {"motor_name": "dump_bucket_teleop"},
             {"can_interface": "can1"},
             {"can_id": 21},
-            {"control_topic": "/dump_door/control"},
-            {"status_topic": "/dump_door/status"},
-            {"health_topic": "/dump_door/health"},
+            {"control_topic": "/dump_bucket_teleop/control"},
+            {"status_topic": "/dump_bucket_teleop/status"},
+            {"health_topic": "/dump_bucket_teleop/health"},
+            {"inverted_value": True}
         ],
         arguments=["--ros-args", "-r", "__node:=dump_bucket_teleop_controller"],
     )

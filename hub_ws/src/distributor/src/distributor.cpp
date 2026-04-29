@@ -147,7 +147,7 @@ private:
       dump_actuator_publisher->publish(duty_msg);
     }
 
-    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.07; // limit duty cyle;
+    double dump_door_duty = (msg->buttons[controls.at(OPEN_DOOR)] - msg->buttons[controls.at(CLOSE_DOOR)]) * 0.10; // limit duty cyle;
     duty_msg.data = dump_door_duty;
     dump_bucket_publisher->publish(duty_msg);
 

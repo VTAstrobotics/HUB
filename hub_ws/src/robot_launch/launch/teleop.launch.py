@@ -16,9 +16,12 @@ def generate_launch_description():
     drive_share = get_package_share_directory("drive")
     dump_share = get_package_share_directory("dump")
 
+    reaper_description_share = get_package_share_directory("reaper_description")
+
     dig_launch = os.path.join(dig_share, "launch", "dig_teleop.launch.py")
     drive_launch = os.path.join(drive_share, "launch", "old_drive.launch.py")
     dump_launch = os.path.join(dump_share, "launch", "dump.launch.py")
+    reaper_description_launch = os.path.join(reaper_description_share, "launch", "launch.py")
 
     spawn_distributor_node = Node(
         package="distributor",
@@ -61,6 +64,7 @@ def generate_launch_description():
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dig_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
+            IncludeLaunchDescription(PythonLaunchDescriptionSource(reaper_description_launch)),
             spawn_distributor_node,
             foxglove_studio,
             zed_h264_republisher
