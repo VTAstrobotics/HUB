@@ -183,7 +183,7 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
+      update_frequency: 4.0
       publish_frequency: 2.0
       global_frame: odom
       robot_base_frame: base_link
@@ -203,10 +203,10 @@ local_costmap:
         enabled: True
         publish_voxel_map: True
         origin_z: 0.0
-        z_resolution: 0.02
+        z_resolution: 0.08
         z_voxels: 32
         max_obstacle_height: 4.0
-        min_obstacle_height: 0.3
+        min_obstacle_height: 0.01
         mark_threshold: 4
         observation_sources: depth_camera
         depth_camera:
@@ -232,13 +232,28 @@ global_costmap:
     robot_base_frame: base_link
     update_frequency: 2.0
     publish_frequency: 1.0
-    width: 50.0
-    height: 50.0
-    resolution: 0.05
+    width: 15.0
+    height: 15.0
+    resolution: 0.15
     track_unknown_space: true
     unknown_cost_value: 255
 
     plugins: ["obstacle_layer", "rtabmap_layer"]
+
+    #maybe replace with 
+    # plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+    #   obstacle_layer:
+    #     plugin: "nav2_costmap_2d::ObstacleLayer"
+    #     observation_sources: zed2_cloud
+    #     zed2_cloud:
+    #       topic: /zed/zed_node/point_cloud/cloud_registered
+    #       data_type: PointCloud2
+    #       marking: true
+    #       clearing: true
+    #       min_obstacle_height: 0.0
+    #       max_obstacle_height: 2.0
+    #       obstacle_range: 3.0
+    #       raytrace_range: 3.5
 
     rtabmap_layer:
       plugin: "nav2_costmap_2d::Costmap2DTopicLayer"
