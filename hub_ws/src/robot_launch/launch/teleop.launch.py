@@ -103,7 +103,7 @@ def generate_launch_description():
                                     'use_sim_time': 'false',
                                     'params_file': nav2_params,
                                 }.items()
-                            )
+                            ),
         ]
 
     if found_zed:
