@@ -29,7 +29,13 @@ def generate_launch_description():
     foxglove_studio = Node(
         package="foxglove_bridge",
         executable="foxglove_bridge",
-        name="foxglove_bridge"
+        name="foxglove_bridge",
+        parameters=[{
+        'image_transport': 'foxglove_compressed_video',  # exact transport name
+        'send_buffer_limit': 1_000_000,
+        'max_qos_depth': 5,
+    }]
+
     )
 
     try: 
@@ -40,21 +46,7 @@ def generate_launch_description():
         found_zed = False
 
 
-    zed_h264_republisher = Node(
-    package='image_transport',
-    executable='republish',
-    name='zed_h264_republisher',
-    arguments=['raw', 'h264'],  # input_transport, output_transport
-    remappings=[
-        ('in',      '/zed/zed_node/left/image_rect_color'),
-        ('out/h264','/zed/zed_node/left/image_rect_color/h264'),
-    ],
-    parameters=[{
-        'h264.bit_rate': 2_000_000,    # 2 Mbps — tune to your bandwidth
-        'h264.preset':  'ultrafast',   # minimize encoding latency
-        'h264.tune':    'zerolatency',
-    }]
-)        
+       
 
 
     nodes = [
@@ -62,8 +54,7 @@ def generate_launch_description():
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             spawn_distributor_node,
-            foxglove_studio,
-            zed_h264_republisher
+            foxglove_studio
         ]
 
     if found_zed:
