@@ -37,13 +37,13 @@ public:
     this->declare_parameter<float>("kD", 0);
     this->declare_parameter<float>("kF", 0);
 
-    double kP = this->get_parameter("kP").as_float();
+    double kP = this->get_parameter("kP").as_double();
     motor->SetP(0, kP);
-    double kI = this->get_parameter("kI").as_float();
+    double kI = this->get_parameter("kI").as_double();
     motor->SetI(0, kI);
-    double kD = this->get_parameter("kD").as_float();
+    double kD = this->get_parameter("kD").as_double();
     motor->SetD(0, kD);
-    double kF = this->get_parameter("kF").as_float();
+    double kF = this->get_parameter("kF").as_double();
     motor->SetF(0, kF);
     motor->BurnFlash();
 

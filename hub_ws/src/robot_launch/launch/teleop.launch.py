@@ -98,12 +98,12 @@ def generate_launch_description():
             foxglove_studio,
             zed_h264_republisher,
             base_link_to_camera_link,
-            IncludeLaunchDescription(PythonLaunchDescriptionSource(nav2_launch), 
-                                 launch_arguments={
-                                    'use_sim_time': 'false',
-                                    'params_file': nav2_params,
-                                }.items()
-                            ),
+            # IncludeLaunchDescription(PythonLaunchDescriptionSource(nav2_launch), 
+            #                      launch_arguments={
+            #                         'use_sim_time': 'false',
+            #                         'params_file': nav2_params,
+            #                     }.items()
+            #                 ),
         ]
 
     if found_zed:
