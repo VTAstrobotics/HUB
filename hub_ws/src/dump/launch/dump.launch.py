@@ -38,6 +38,7 @@ def generate_launch_description():
             {"control_topic": "/dump_bucket_teleop/control"},
             {"status_topic": "/dump_bucket_teleop/status"},
             {"health_topic": "/dump_bucket_teleop/health"},
+            {"inverted_value": True}
         ],
         arguments=["--ros-args", "-r", "__node:=dump_bucket_teleop_controller"],
     )
@@ -50,9 +51,9 @@ def generate_launch_description():
             {"motor_name": "dump_actuator_teleop"},
             {"can_interface": "can1"},
             {"can_id": 22},
-            {"control_topic": "/dump_actuator_teleop/control"},
-            {"status_topic": "/dump_actuator_teleop/status"},
-            {"health_topic": "/dump_actuator_teleop/health"},
+            {"control_topic": "/dump_linear_actuator/control"},
+            {"status_topic": "/dump_linear_actuator/status"},
+            {"health_topic": "/dump_linear_actuator/health"},
         ],
         arguments=["--ros-args", "-r", "__node:=dump_actuator_teleop_controller"],
     )
@@ -65,9 +66,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            spawn_dump_auto, 
             spawn_dump_teleop,
             spawn_dump_door_motor,
-            spawn_dump_linear_actuator,
+            spawn_dump_linear_actuator
             # foxglove_studio,
         ]
     )

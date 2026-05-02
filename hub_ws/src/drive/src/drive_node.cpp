@@ -43,7 +43,7 @@ public:
     this->declare_parameter<double>("wheelbase", reaper_wheelbase);
     this->wheelbase = this->get_parameter("wheelbase").as_double();
 
-    this->declare_parameter<double>("motor_gear_ratio", 125.0);
+    this->declare_parameter<double>("motor_gear_ratio", 100.0);
     this->motor_gear_ratio = this->get_parameter("motor_gear_ratio").as_double();
 
     this->declare_parameter<double>("wheel_diameter", 0.31);
@@ -111,7 +111,7 @@ private:
   void cmd_vel_callback(geometry_msgs::msg::Twist::SharedPtr msg)
   {
     double lin_x = msg->linear.x;
-    double ang_z = msg->angular.z;
+    double ang_z = -msg->angular.z;
     // RCLCPP_INFO(this->get_logger(), "Driving With cmd_vel/");
 
     // velocity control

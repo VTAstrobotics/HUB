@@ -17,10 +17,10 @@ using std::placeholders::_2;
 using MotorControl = dig::action::MotorControl;
 using GoalHandleMotor = rclcpp_action::ServerGoalHandle<MotorControl>;
 
-#define DIG_DEPOSIT_POSITION 0.31f
-#define DIG_COLLECT_POSITION -0.1f
+#define DIG_DEPOSIT_POSITION 0.335f
+#define DIG_COLLECT_POSITION -0.15f
 #define DIG_STOW_POSITION 0.1f
-#define DIG_THRESHOLD 0.01f
+#define DIG_THRESHOLD 0.05f
 
 /* TODO
 Add can, brake mode, and PID constants to launch file for dig motor, also inversion

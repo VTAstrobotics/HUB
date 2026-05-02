@@ -30,6 +30,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        base_link_to_camera_link,
         DeclareLaunchArgument(
             'use_robot_state_pub',
             default_value='True',
@@ -61,6 +62,5 @@ def generate_launch_description():
                     value_type=str
                 )
             }]
-        ),
-        base_link_to_camera_link
+        )
     ])

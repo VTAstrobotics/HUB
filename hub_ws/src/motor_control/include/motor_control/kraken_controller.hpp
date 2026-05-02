@@ -44,6 +44,9 @@ public:
     this->declare_parameter<bool>("arm_cosine", false);
     this->declare_parameter<bool>("brake", false);
 
+    this->declare_parameter<int>("leader_id", 0);
+    this->declare_parameter<bool>("inverse_to_leader", false);
+
     int canID = this->get_parameter("encoder_canID").as_int();
     fx_config.Feedback.FeedbackRemoteSensorID = canID;
 
@@ -67,14 +70,20 @@ public:
     double kD = this->get_parameter("kD").as_double();
     fx_config.Slot0.kD = kD;
     double kG = this->get_parameter("kG").as_double();
-
-
     fx_config.Slot0.kG = kG;
 
     double closed_loop_ramp_rate = this->get_parameter("closed_loop_ramp_rate").as_double();
     fx_config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = static_cast<units::time::second_t>(closed_loop_ramp_rate);
 
     motor->GetConfigurator().Apply(fx_config);
+
+    int leaderID = this->get_parameter("leader_id").as_int();
+    if (leaderID != 0)
+    {
+      bool inverse_to_leader = this->get_parameter("inverse_to_leader").as_bool();
+      follower = std::make_shared<controls::Follower>(leaderID, inverse_to_leader);
+      
+    }
 
     // motor->SetNeutralMode(signals::NeutralModeValue::Coast);
 
@@ -98,9 +107,9 @@ public:
 
 private:
   std::unique_ptr<hardware::TalonFX> motor; // INIT just so that there are no warnings, this needs to be overridden
-
   controls::DutyCycleOut outDuty{0.0};
   controls::VelocityVoltage outVelocity{0.0_tps}; // in Turns per second
   controls::PositionVoltage outPosition{0.0_tr};
+  std::shared_ptr<controls::Follower> follower = nullptr;
   // Current Requires a premium payment lmao
 };

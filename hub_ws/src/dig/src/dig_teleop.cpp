@@ -11,7 +11,7 @@ class DigTeleop : public rclcpp::Node
 public:
     DigTeleop() : Node("dig_teleop_node")
     {
-        linkage_motor = std::make_shared<Motor>("dig_motor_teleop", this);
+        linkage_motor = std::make_shared<Motor>("dig_motor", this);
         mux_subscriber = this->create_subscription<std_msgs::msg::Float32>(
             "/dig_teleop", 10, std::bind(&DigTeleop::mux_callback, this, _1));
     }
