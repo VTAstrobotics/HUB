@@ -38,7 +38,13 @@ def generate_launch_description():
     foxglove_studio = Node(
         package="foxglove_bridge",
         executable="foxglove_bridge",
-        name="foxglove_bridge"
+        name="foxglove_bridge",
+        parameters=[{
+        'image_transport': 'foxglove_compressed_video',  # exact transport name
+        'send_buffer_limit': 1_000_000,
+        'max_qos_depth': 5,
+    }]
+
     )
 
     try: 
