@@ -25,7 +25,7 @@ def generate_launch_description():
                 {"control_topic": "/front_left/control"},
                 {"status_topic": "/front_left/status"},
                 {"health_topic": "/front_left/health"},
-                {"kP": 0.00008}, 
+                {"kP": 0.00008958}, #Test Value
                 {"kI": 0.0},
                 {"kD": 0.0001}, 
                 {"kF": 0.00008},  
