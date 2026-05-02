@@ -66,8 +66,12 @@ public:
     this->declare_parameter("ROTATION_CONTROL", "RSTICKX");
     this->declare_parameter("DIG_UP", "RTRIGGER");
     this->declare_parameter("DIG_DOWN", "LTRIGGER");
-    this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
-    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_A");
+    // this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
+    // this->declare_parameter("LOWER_ACTUATOR", "BUTTON_A");
+    this->declare_parameter("RAISE_ACTUATOR", "BUTTON_START");
+    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_BACK");
+    this->declare_parameter("DUMP_UP", "BUTTON_Y");
+    this->declare_parameter("DUMP_HOME", "BUTTON_A"); 
     this->declare_parameter("OPEN_DOOR", "BUTTON_X");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.6);
@@ -78,7 +82,6 @@ public:
 
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
     this->declare_parameter("DUMP_HOME", "BUTTON_LBUMPER");
-    this->declare_parameter("DUMP_CANCEL", "BUTTON_BACK");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
@@ -100,7 +103,7 @@ public:
     // dump buttons declared
     DUMP_DEPOSIT = this->get_parameter("DUMP_DEPOSIT").as_string();
     DUMP_HOME = this->get_parameter("DUMP_HOME").as_string();
-    DUMP_CANCEL = this->get_parameter("DUMP_CANCEL").as_string();
+    DUMP_UP = this->get_parameter("DUMP_UP").as_string();
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
@@ -174,9 +177,10 @@ private:
       if (!auto_dump_ptr->is_running())
         auto_dump_ptr->auto_dump(0);
     }
-    if (msg->buttons[controls.at(DUMP_CANCEL)])
+    if (msg->buttons[controls.at(DUMP_UP)])
     {
-      auto_dump_ptr->cancel_dump();
+      if (!auto_dump_ptr->is_running())
+        auto_dump_ptr->auto_dump(2);
     }
 
     // std_msgs::msg::Int32 homing_msg;
