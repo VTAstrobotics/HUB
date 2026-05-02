@@ -14,6 +14,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(dig REQUIRED)
 find_package(dump REQUIRED)
+find_package(motor_messages REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -34,6 +35,7 @@ ament_target_dependencies(distributor_node
   sensor_msgs
   dig
   dump
+  motor_messages
 )
 install(TARGETS distributor_node
   DESTINATION lib/${PROJECT_NAME}

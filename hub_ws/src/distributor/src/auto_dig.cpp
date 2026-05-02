@@ -9,6 +9,8 @@ AutoDig::AutoDig(rclcpp::Node *owner_node)
     running = false;
     cancel_requested = false;
     dig_goal_succeeded = false;
+
+    dig_publisher = this->owner_node->create_publisher<motor_messages::msg::Command>("/dig_teleop", 10);
 }
 
 AutoDig::~AutoDig()
@@ -104,6 +106,8 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
     velocity_publisher_->publish(cmd);
 
     start = std::chrono::steady_clock::now();
+    motor_messages::msg::Command dig_down_command;
+    dig_down_command.dutycycle.data = 0.01;
 
     while (!cancel_requested)
     {
@@ -119,6 +123,9 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
 
         velocity_publisher_->publish(cmd);
         RCLCPP_INFO(owner_node->get_logger(), "Auto drive initiated");
+
+        dig_publisher->publish(dig_down_command);
+        RCLCPP_INFO(owner_node->get_logger(), "Digging Down");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
@@ -156,7 +163,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
         running = false;
         RCLCPP_WARN(owner_node->get_logger(), "Autodig canceled during drive");
         return;
-    } 
+    }
     running = false;
 }
 
