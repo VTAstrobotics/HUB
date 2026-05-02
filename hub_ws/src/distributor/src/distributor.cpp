@@ -67,18 +67,17 @@ public:
     this->declare_parameter("DIG_UP", "RTRIGGER");
     this->declare_parameter("DIG_DOWN", "LTRIGGER");
     this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
-    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_X");
-    this->declare_parameter("OPEN_DOOR", "BUTTON_A");
+    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_A");
+    this->declare_parameter("OPEN_DOOR", "BUTTON_X");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
-    this->declare_parameter("LINEAR_SCALE", 0.3);
+    this->declare_parameter("LINEAR_SCALE", 0.6);
     this->declare_parameter("ANGULAR_SCALE", 1.1);
-    this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
     this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
 
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
-    this->declare_parameter("DUMP_HOME", "BUTTON_START");
+    this->declare_parameter("DUMP_HOME", "BUTTON_LBUMPER");
     this->declare_parameter("DUMP_CANCEL", "BUTTON_BACK");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
@@ -107,8 +106,8 @@ public:
   }
 
   void make_slew_rate_limiters(){
-    linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
-    dig_slew_rate_limiter = new slew_rate_limiter{0.3, this->shared_from_this()};
+    linear_slew_rate_limiter = new slew_rate_limiter{2, this->shared_from_this()};
+    dig_slew_rate_limiter = new slew_rate_limiter{0.6, this->shared_from_this()};
   }
 
 private:
@@ -160,6 +159,7 @@ private:
     if (msg->buttons[controls.at(DIG_AUTO_CANCEL)])
     {
       auto_dig_ptr->cancel_dig();
+      auto_dump_ptr->cancel_dump();
     }
 
     // For DUMP
