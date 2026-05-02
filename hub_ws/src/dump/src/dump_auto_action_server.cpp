@@ -30,7 +30,8 @@ using GoalHandleDump = rclcpp_action::ServerGoalHandle<Dump>;
 enum DumpPosition
 {
     HOME,
-    DUMP
+    DUMP,
+    UP
 };
 
 class DumpAutoActionServer : public rclcpp::Node
@@ -165,47 +166,22 @@ private:
             switch (commandedPosition)
             {
             case HOME:
-                if (fabs(door_position - DOOR_HOME_POSITION) < DOOR_POSITION_THRESHOLD)
-                {
-                    door_complete = true;
-                    door_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    door_msg.dutycycle.data = -DOOR_DUTY_CYCLE;
-                }
-                if (fabs(actuator_position - ACTUATOR_HOME_POSITION) < ACTUATOR_POSITION_THRESHOLD)
-                {
-                    actuator_complete = true;
-                    actuator_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    actuator_msg.dutycycle.data = ACTUATOR_DUTY_CYCLE;
-                }
+                door_complete = position_check(door_position, DOOR_HOME_POSITION, DOOR_POSITION_THRESHOLD);
+                door_msg.dutycycle.data = door_complete ? 0 : -DOOR_DUTY_CYCLE;
+                actuator_complete = position_check(actuator_position, ACTUATOR_HOME_POSITION, ACTUATOR_POSITION_THRESHOLD);
+                actuator_msg.dutycycle.data = actuator_complete ? 0 : ACTUATOR_DUTY_CYCLE;
                 break;
             case DUMP:
-                if (fabs(door_position - DOOR_DUMP_POSITION) < DOOR_POSITION_THRESHOLD)
-                {
-                    door_complete = true;
-                    door_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    door_msg.dutycycle.data = DOOR_DUTY_CYCLE;
-                }
-                if ((fabs(actuator_position - ACTUATOR_DUMP_POSITION) < ACTUATOR_POSITION_THRESHOLD) || actuator_position > ACTUATOR_DUMP_POSITION)
-                {
-                    actuator_complete = true;
-                    RCLCPP_INFO(this->get_logger(), "Actuator Done");
-                    actuator_msg.dutycycle.data = 0;
-                }
-                else
-                {
-                    RCLCPP_INFO(this->get_logger(), "Actuator Running");
-                    actuator_msg.dutycycle.data = -ACTUATOR_DUTY_CYCLE;
-                }
+                door_complete = position_check(door_position, DOOR_DUMP_POSITION, DOOR_POSITION_THRESHOLD);
+                door_msg.dutycycle.data = door_complete ? 0 : DOOR_DUTY_CYCLE;
+                actuator_complete = position_check(actuator_position, ACTUATOR_DUMP_POSITION, ACTUATOR_POSITION_THRESHOLD) || actuator_position > ACTUATOR_DUMP_POSITION;
+                actuator_msg.dutycycle.data = actuator_complete ? 0 : -ACTUATOR_DUTY_CYCLE;
                 break;
+            case UP:
+                door_complete = position_check(door_position, DOOR_HOME_POSITION, DOOR_POSITION_THRESHOLD);
+                door_msg.dutycycle.data = door_complete ? 0 : -DOOR_DUTY_CYCLE;
+                actuator_complete = position_check(actuator_position, ACTUATOR_DUMP_POSITION, ACTUATOR_POSITION_THRESHOLD) || actuator_position > ACTUATOR_DUMP_POSITION;
+                actuator_msg.dutycycle.data = actuator_complete ? 0 : -ACTUATOR_DUTY_CYCLE;
             }
             door_duty_publisher->publish(door_msg);
             linear_actuator_duty_publisher->publish(actuator_msg);
@@ -225,6 +201,11 @@ private:
             goal_handle->succeed(result);
             RCLCPP_INFO(this->get_logger(), "Goal succeeded");
         }
+    }
+
+    bool position_check(float position, float target, float threshold)
+    {
+        return fabs(position - target) < threshold;
     }
 
     void dump_door_status_callback(motor_messages::msg::Feedback msg)
