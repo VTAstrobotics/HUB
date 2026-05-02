@@ -33,4 +33,5 @@ private:
     motor_messages::msg::Feedback last_motor_state;
     std::mutex read_lock;
     rclcpp::Node* owner_node; 
+
 };
