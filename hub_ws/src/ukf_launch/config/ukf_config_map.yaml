@@ -1,8 +1,8 @@
 ukf_node_map:
   ros__parameters:
     frequency: 15.0
-    sensor_timeout: 1.9
-    transform_timeout: 0.5
+    sensor_timeout: 2.0
+    transform_timeout: 2.0
     publish_tf: true
     odom_frame: odom
     base_link_frame: base_link
@@ -12,44 +12,56 @@ ukf_node_map:
     two_d_mode: true
 
 
-    imu0: /imu/data
+    odom0: /odom
+    odom0_config: [ true,  true,  false,   # x y z
+                    false, false, false,    # roll pitch yaw
+                    true,  true,  false,   # vx vy vz
+                    false, false, false,    # vroll vpitch vyaw
+                    false, false, false ]  # ax ay az
+    odom0_differential: true
+    odom0_relative:     false
+    odom0_queue_size:   10
+    odom0_nodelay:      false
+    # odom0_rejection_threshold: 100
+    # odom1_rejection_threshold: 2.5
+
+    imu0: /zed/zed_node/imu/data
     imu0_config: [ false, false, false,   # x y z (
                    false, false,  true,   # roll pitch yaw
                    false, false, false,   # vx vy vz
                    false, false,  true,   # vroll vpitch vyaw
-                   false, false,  false ]  # ax ay az (linear accel)
+                   true, true,  true ]  # ax ay az (linear accel)
 
-    imu0_relative:      false
+    imu0_relative:      true
     imu0_differential:  false
     imu0_queue_size:    20
-    imu0_nodelay:       true
+    imu0_nodelay:       false
+
     # imu0_rejection_threshold: 100
     # imu0_pose_rejection_threshold: 100
     # imu0_twist_rejection_threshold: 100
     # imu0_linear_acceleration_rejection_threshold: 100
 
-
-    odom0: /odometry/filtered_aruco
-    odom0_config: [ true,  true,  false,    # x y z, removing z for now
-                    false, false, false,   # roll pitch yaw
-                    false, false, false,   # vx vy vz
-                    false, false, false,   # vroll vpitch vyaw
-                    false, false, false ]  # ax ay az
-    odom0_differential: false
-    odom0_relative:     false
-    odom0_queue_size:   5
-    odom0_nodelay:      false
-    # odom1_rejection_threshold: 2.5
-
-
-    odom1: /odom
-    odom1_config: [ false,  false,  false,   # x y z
-                    false, false, false,    # roll pitch yaw
-                    true,  true,  false,   # vx vy vz
+    odom1: "/zed/zed_node/odom"
+    odom1_config: [ true,  true,  false,   # x y z
+                    false, false, true,    # roll pitch yaw
+                    false,  false,  false,   # vx vy vz
                     false, false, false,    # vroll vpitch vyaw
                     false, false, false ]  # ax ay az
-    odom1_differential: false
+    odom1_differential: true
     odom1_relative:     false
     odom1_queue_size:   10
     odom1_nodelay:      false
-    # odom0_rejection_threshold: 100
+
+
+    pose0: /zed/zed_node/pose
+    pose0_config: [ false, false, false,   # x y z (
+                   false, false,  true,   # roll pitch yaw
+                   false, false, false,   # vx vy vz
+                   false, false,  true,   # vroll vpitch vyaw
+                   false, false,  false ]  # ax ay az (linear accel)
+
+    pose0_relative:      false
+    pose0_differential:  false
+    pose0_queue_size:    20
+    pose0_nodelay:       true
