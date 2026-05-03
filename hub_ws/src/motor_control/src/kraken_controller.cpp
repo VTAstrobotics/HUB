@@ -43,7 +43,7 @@ void KrakenController::control_callback(const motor_messages::msg::Command::Shar
   else
   {
     ctre::phoenix::unmanaged::FeedEnable(150);
-
+    RCLCPP_INFO(this->get_logger(), "Set kraken duty cycle to ZERO");
     controls::DutyCycleOut stop{0};
     this->motor->SetControl(stop);
   }
