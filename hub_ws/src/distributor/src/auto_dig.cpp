@@ -34,6 +34,7 @@ void AutoDig::auto_dig(float drive_time_seconds)
     }
     running = true;
 
+
     driver_thread = std::thread([this, drive_time_seconds]()
                                 { run_auto_dig(drive_time_seconds); });
     RCLCPP_INFO(owner_node->get_logger(), "Auto dig thread created");

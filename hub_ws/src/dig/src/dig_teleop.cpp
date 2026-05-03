@@ -20,6 +20,10 @@ private:
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr mux_subscriber;
     std::shared_ptr<Motor> linkage_motor;
 
+
+    double linear_scale = 0.5; 
+
+
     void mux_callback(std_msgs::msg::Float32::SharedPtr msg)
     {
         float duty = msg->data;
