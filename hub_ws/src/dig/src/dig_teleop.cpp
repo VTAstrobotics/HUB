@@ -19,15 +19,15 @@ public:
 private:
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr mux_subscriber;
     std::shared_ptr<Motor> linkage_motor;
-
+    
     void mux_callback(std_msgs::msg::Float32::SharedPtr msg)
     {
         float duty = msg->data;
         duty = std::clamp(duty, -1.0f, 1.0f);
-        if (fabs(duty) < 0.01)
-        {
-            return;
-        }
+        // if (fabs(duty) < 0.01)
+        // {
+        //     return;
+        // }
         motor_messages::msg::Command dig_duty_msg;
         dig_duty_msg.dutycycle.data = duty;
         linkage_motor->send_command(dig_duty_msg);

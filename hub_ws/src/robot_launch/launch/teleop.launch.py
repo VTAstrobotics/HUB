@@ -99,11 +99,11 @@ def generate_launch_description():
             IncludeLaunchDescription(PythonLaunchDescriptionSource(drive_launch)),
             IncludeLaunchDescription(PythonLaunchDescriptionSource(dump_launch)),
             # IncludeLaunchDescription(PythonLaunchDescriptionSource(reaper_description_launch)),
-            IncludeLaunchDescription(PythonLaunchDescriptionSource(ukf_launch_launch)),
+            # IncludeLaunchDescription(PythonLaunchDescriptionSource(ukf_launch_launch)),
             spawn_distributor_node,
             foxglove_studio,
             zed_h264_republisher,
-            base_link_to_camera_link,
+            # base_link_to_camera_link,
             # IncludeLaunchDescription(PythonLaunchDescriptionSource(nav2_launch), 
             #                      launch_arguments={
             #                         'use_sim_time': 'false',
