@@ -11,7 +11,7 @@ from launch.actions import ExecuteProcess
 
 def generate_launch_description():
     # Locate the other packages' share directories
-    distributor_share = get_package_share_directory("distributor")
+    # distributor_share = get_package_share_directory("distributor")
     dig_share = get_package_share_directory("dig")
     drive_share = get_package_share_directory("drive")
     dump_share = get_package_share_directory("dump")

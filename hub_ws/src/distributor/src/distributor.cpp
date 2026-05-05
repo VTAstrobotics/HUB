@@ -141,7 +141,7 @@ private:
     }
 
     double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
-    double inf = msg->buttons[controls.at(CONVEYOR_FORWARD)]; 
+    // double inf = msg->buttons[controls.at(CONVEYOR_FORWARD)]; 
     if (!auto_dump_ptr->is_running())
     {
       duty_msg.data = dump_actuator_duty;
