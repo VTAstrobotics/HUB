@@ -70,8 +70,7 @@ public:
     // this->declare_parameter("LOWER_ACTUATOR", "BUTTON_A");
     this->declare_parameter("RAISE_ACTUATOR", "BUTTON_START");
     this->declare_parameter("LOWER_ACTUATOR", "BUTTON_BACK");
-    this->declare_parameter("DUMP_UP", "BUTTON_Y");
-    this->declare_parameter("DUMP_HOME", "BUTTON_A"); 
+    // this->declare_parameter("DUMP_UP", "BUTTON_Y");
     this->declare_parameter("OPEN_DOOR", "BUTTON_X");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
     this->declare_parameter("LINEAR_SCALE", 0.6);
@@ -81,7 +80,8 @@ public:
     this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
 
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
-    this->declare_parameter("DUMP_HOME", "BUTTON_LBUMPER");
+    this->declare_parameter("DUMP_HOME", "BUTTON_A");
+    this->declare_parameter("DUMP_UP", "BUTTON_Y");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
@@ -95,7 +95,7 @@ public:
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
 
-    ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
+    // ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
 
     DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
     DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
@@ -234,6 +234,7 @@ private:
   std::string DUMP_DEPOSIT;
   std::string DUMP_HOME;
   std::string DUMP_CANCEL;
+  std::string DUMP_UP;
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
   std::shared_ptr<AutoDump> auto_dump_ptr;
