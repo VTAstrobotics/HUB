@@ -6,7 +6,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joy.hpp"
-#include "std_msgs/msg/float32.hpp"
+// #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "map.h"
 #include "slew_rate_limiter.hpp"
@@ -109,7 +109,7 @@ public:
   }
 
   void make_slew_rate_limiters(){
-    linear_slew_rate_limiter = new slew_rate_limiter{2, this->shared_from_this()};
+    linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
     dig_slew_rate_limiter = new slew_rate_limiter{0.6, this->shared_from_this()};
   }
 

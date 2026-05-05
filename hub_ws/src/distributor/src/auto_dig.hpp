@@ -11,7 +11,7 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "dig/action/motor_control.hpp"
-#include "motor_messages/msg/command.hpp"
+#include "std_msgs/msg/float32.hpp"
 
 class AutoDig
 {
@@ -35,5 +35,5 @@ private:
     std::atomic_bool cancel_requested;
     std::atomic_bool dig_goal_succeeded;
     std::mutex goal_mutex;
-    rclcpp::Publisher<motor_messages::msg::Command>::SharedPtr dig_publisher;
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dig_publisher_auto;
 };
