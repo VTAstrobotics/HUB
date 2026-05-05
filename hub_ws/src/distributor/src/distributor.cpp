@@ -109,8 +109,8 @@ public:
   }
 
   void make_slew_rate_limiters(){
-    linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
-    dig_slew_rate_limiter = new slew_rate_limiter{0.6, this->shared_from_this()};
+    linear_slew_rate_limiter = new slew_rate_limiter{2, this->shared_from_this()};
+    dig_slew_rate_limiter = new slew_rate_limiter{0.85, this->shared_from_this()};
   }
 
 private:
@@ -142,7 +142,7 @@ private:
       dig_publisher->publish(duty_msg);
     }
 
-    double dump_actuator_duty = (msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
+    double dump_actuator_duty = -(msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
     // double inf = msg->buttons[controls.at(CONVEYOR_FORWARD)]; 
     if (!auto_dump_ptr->is_running())
     {
