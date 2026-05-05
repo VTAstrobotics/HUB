@@ -6,7 +6,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joy.hpp"
-#include "std_msgs/msg/float32.hpp"
+// #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "map.h"
 #include "slew_rate_limiter.hpp"
@@ -66,20 +66,22 @@ public:
     this->declare_parameter("ROTATION_CONTROL", "RSTICKX");
     this->declare_parameter("DIG_UP", "RTRIGGER");
     this->declare_parameter("DIG_DOWN", "LTRIGGER");
-    this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
-    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_X");
-    this->declare_parameter("OPEN_DOOR", "BUTTON_A");
+    // this->declare_parameter("RAISE_ACTUATOR", "BUTTON_Y");
+    // this->declare_parameter("LOWER_ACTUATOR", "BUTTON_A");
+    this->declare_parameter("RAISE_ACTUATOR", "BUTTON_START");
+    this->declare_parameter("LOWER_ACTUATOR", "BUTTON_BACK");
+    // this->declare_parameter("DUMP_UP", "BUTTON_Y");
+    this->declare_parameter("OPEN_DOOR", "BUTTON_X");
     this->declare_parameter("CLOSE_DOOR", "BUTTON_B");
-    this->declare_parameter("LINEAR_SCALE", 0.3);
+    this->declare_parameter("LINEAR_SCALE", 0.6);
     this->declare_parameter("ANGULAR_SCALE", 1.1);
-    this->declare_parameter("ACTUATOR_HOMING", "BUTTON_LBUMPER");
 
     this->declare_parameter("DIG_AUTO", "BUTTON_RSTICK");
     this->declare_parameter("DIG_AUTO_CANCEL", "BUTTON_LSTICK");
 
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
-    this->declare_parameter("DUMP_HOME", "BUTTON_START");
-    this->declare_parameter("DUMP_CANCEL", "BUTTON_BACK");
+    this->declare_parameter("DUMP_HOME", "BUTTON_A");
+    this->declare_parameter("DUMP_UP", "BUTTON_Y");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
@@ -93,7 +95,7 @@ public:
     linear_scale = this->get_parameter("LINEAR_SCALE").as_double();
     angular_scale = this->get_parameter("ANGULAR_SCALE").as_double();
 
-    ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
+    // ACTUATOR_HOMING = this->get_parameter("ACTUATOR_HOMING").as_string();
 
     DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
     DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
@@ -101,14 +103,14 @@ public:
     // dump buttons declared
     DUMP_DEPOSIT = this->get_parameter("DUMP_DEPOSIT").as_string();
     DUMP_HOME = this->get_parameter("DUMP_HOME").as_string();
-    DUMP_CANCEL = this->get_parameter("DUMP_CANCEL").as_string();
+    DUMP_UP = this->get_parameter("DUMP_UP").as_string();
 
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
 
   void make_slew_rate_limiters(){
     linear_slew_rate_limiter = new slew_rate_limiter{1, this->shared_from_this()};
-    dig_slew_rate_limiter = new slew_rate_limiter{0.3, this->shared_from_this()};
+    dig_slew_rate_limiter = new slew_rate_limiter{0.6, this->shared_from_this()};
   }
 
 private:
@@ -161,6 +163,7 @@ private:
     if (msg->buttons[controls.at(DIG_AUTO_CANCEL)])
     {
       auto_dig_ptr->cancel_dig();
+      auto_dump_ptr->cancel_dump();
     }
 
     // For DUMP
@@ -175,9 +178,10 @@ private:
       if (!auto_dump_ptr->is_running())
         auto_dump_ptr->auto_dump(0);
     }
-    if (msg->buttons[controls.at(DUMP_CANCEL)])
+    if (msg->buttons[controls.at(DUMP_UP)])
     {
-      auto_dump_ptr->cancel_dump();
+      if (!auto_dump_ptr->is_running())
+        auto_dump_ptr->auto_dump(2);
     }
 
     // std_msgs::msg::Int32 homing_msg;
@@ -231,6 +235,7 @@ private:
   std::string DUMP_DEPOSIT;
   std::string DUMP_HOME;
   std::string DUMP_CANCEL;
+  std::string DUMP_UP;
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
   std::shared_ptr<AutoDump> auto_dump_ptr;

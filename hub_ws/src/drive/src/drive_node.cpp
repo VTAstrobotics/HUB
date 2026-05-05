@@ -115,8 +115,8 @@ private:
     // RCLCPP_INFO(this->get_logger(), "Driving With cmd_vel/");
 
     // velocity control
-    double left_vel = ((lin_x - 0.5 * ang_z * wheelbase));
-    double right_vel = (-(lin_x + 0.5 * ang_z * wheelbase));
+    double left_vel = (-(lin_x - 0.5 * ang_z * wheelbase));
+    double right_vel = ((lin_x + 0.5 * ang_z * wheelbase));
 
     std::cout << "VELOCITY: " << left_vel << " | " << right_vel << std::endl;
     double left_rpm = vel_to_rpm(left_vel);
@@ -140,7 +140,7 @@ private:
   {
     pose2d new_pose;
     new_pose.x = 0;
-    new_pose.y = 0;
+    new_pose.y = 0; 
     new_pose.theta = 0;
     new_pose.time = this->get_clock()->now();
     new_pose.x = 0;
