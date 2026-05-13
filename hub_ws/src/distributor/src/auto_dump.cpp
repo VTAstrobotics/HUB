@@ -69,6 +69,7 @@ void AutoDump::run_auto_dump(int goal_position)
         running = false;
         return;
     }
+    auto start = std::chrono::steady_clock::now();
 
     if (goal_position == 1)
     {
@@ -76,7 +77,7 @@ void AutoDump::run_auto_dump(int goal_position)
         cmd.linear.x = 0.2;
         velocity_publisher_->publish(cmd);
 
-        auto start = std::chrono::steady_clock::now();
+        start = std::chrono::steady_clock::now();
 
         float dump_time_seconds = 0.2;
 
