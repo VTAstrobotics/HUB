@@ -69,7 +69,6 @@ void AutoDump::run_auto_dump(int goal_position)
         running = false;
         return;
     }
-    auto start = std::chrono::steady_clock::now();
 
     if (goal_position == 1)
     {
@@ -77,7 +76,7 @@ void AutoDump::run_auto_dump(int goal_position)
         cmd.linear.x = 0.2;
         velocity_publisher_->publish(cmd);
 
-        start = std::chrono::steady_clock::now();
+        auto start_drive = std::chrono::steady_clock::now();
 
         float dump_time_seconds = 0.2;
 
@@ -85,7 +84,7 @@ void AutoDump::run_auto_dump(int goal_position)
         {
             auto elapsed =
                 std::chrono::duration<float>(
-                    std::chrono::steady_clock::now() - start)
+                    std::chrono::steady_clock::now() - start_drive)
                     .count();
 
             if (elapsed >= dump_time_seconds)
@@ -102,7 +101,7 @@ void AutoDump::run_auto_dump(int goal_position)
         velocity_publisher_->publish(stop);
     }
 
-    start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
     auto timeout = std::chrono::seconds(10);
 
     while (!dump_goal_succeeded)
