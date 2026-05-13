@@ -108,7 +108,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
 
     start = std::chrono::steady_clock::now();
     std_msgs::msg::Float32 dig_down_command;
-    dig_down_command.data = 0.01;
+    dig_down_command.data = 0.01; //1% downwards forcing duty cycle
 
     while (!cancel_requested)
     {

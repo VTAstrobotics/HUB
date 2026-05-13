@@ -1,9 +1,11 @@
 #include "auto_dump.hpp"
 
-AutoDump::AutoDump(rclcpp::Node* owner_node)
+AutoDump::AutoDump(rclcpp::Node *owner_node)
 {
     this->owner_node = owner_node;
     dump_client_ = rclcpp_action::create_client<dump::action::Dump>(owner_node, "dump_auto");
+    velocity_publisher_ = this->owner_node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
+
 
     running = false;
     cancel_requested = false;
@@ -69,7 +71,35 @@ void AutoDump::run_auto_dump(int goal_position)
         return;
     }
 
+    geometry_msgs::msg::Twist cmd;
+    cmd.linear.x = 0.2;
+    velocity_publisher_->publish(cmd);
+
     auto start = std::chrono::steady_clock::now();
+
+    float dump_time_seconds = 0.2;
+
+    while (!cancel_requested)
+    {
+        auto elapsed =
+            std::chrono::duration<float>(
+                std::chrono::steady_clock::now() - start)
+                .count();
+
+        if (elapsed >= dump_time_seconds)
+        {
+            break;
+        }
+
+        velocity_publisher_->publish(cmd);
+        RCLCPP_INFO(owner_node->get_logger(), "Auto drive initiated");
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    geometry_msgs::msg::Twist stop;
+    velocity_publisher_->publish(stop);
+
+    start = std::chrono::steady_clock::now();
     auto timeout = std::chrono::seconds(10);
 
     while (!dump_goal_succeeded)
@@ -126,7 +156,6 @@ bool AutoDump::send_dump_goal(int goal_position)
         {
             std::lock_guard<std::mutex> lock(goal_mutex);
             active_goal_handle_.reset();
-
         }
         if (result.code == rclcpp_action::ResultCode::SUCCEEDED)
         {
