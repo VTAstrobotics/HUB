@@ -6,7 +6,6 @@ AutoDump::AutoDump(rclcpp::Node *owner_node)
     dump_client_ = rclcpp_action::create_client<dump::action::Dump>(owner_node, "dump_auto");
     velocity_publisher_ = this->owner_node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
 
-
     running = false;
     cancel_requested = false;
     dump_goal_succeeded = false;
@@ -71,33 +70,36 @@ void AutoDump::run_auto_dump(int goal_position)
         return;
     }
 
-    geometry_msgs::msg::Twist cmd;
-    cmd.linear.x = 0.2;
-    velocity_publisher_->publish(cmd);
-
-    auto start = std::chrono::steady_clock::now();
-
-    float dump_time_seconds = 0.2;
-
-    while (!cancel_requested)
+    if (goal_position = 1)
     {
-        auto elapsed =
-            std::chrono::duration<float>(
-                std::chrono::steady_clock::now() - start)
-                .count();
-
-        if (elapsed >= dump_time_seconds)
-        {
-            break;
-        }
-
+        geometry_msgs::msg::Twist cmd;
+        cmd.linear.x = 0.2;
         velocity_publisher_->publish(cmd);
-        RCLCPP_INFO(owner_node->get_logger(), "Auto drive initiated");
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        auto start = std::chrono::steady_clock::now();
+
+        float dump_time_seconds = 0.2;
+
+        while (!cancel_requested)
+        {
+            auto elapsed =
+                std::chrono::duration<float>(
+                    std::chrono::steady_clock::now() - start)
+                    .count();
+
+            if (elapsed >= dump_time_seconds)
+            {
+                break;
+            }
+
+            velocity_publisher_->publish(cmd);
+            RCLCPP_INFO(owner_node->get_logger(), "Auto drive initiated");
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        geometry_msgs::msg::Twist stop;
+        velocity_publisher_->publish(stop);
     }
-    geometry_msgs::msg::Twist stop;
-    velocity_publisher_->publish(stop);
 
     start = std::chrono::steady_clock::now();
     auto timeout = std::chrono::seconds(10);
