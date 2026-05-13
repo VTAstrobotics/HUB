@@ -70,7 +70,7 @@ void AutoDump::run_auto_dump(int goal_position)
         return;
     }
 
-    if (goal_position = 1)
+    if (goal_position == 1)
     {
         geometry_msgs::msg::Twist cmd;
         cmd.linear.x = 0.2;
