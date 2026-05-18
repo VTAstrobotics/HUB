@@ -110,7 +110,7 @@ private:
    */
   void cmd_vel_callback(geometry_msgs::msg::Twist::SharedPtr msg)
   {
-    double lin_x = msg->linear.x;
+    double lin_x = -msg->linear.x;
     double ang_z = -msg->angular.z;
     // RCLCPP_INFO(this->get_logger(), "Driving With cmd_vel/");
 
