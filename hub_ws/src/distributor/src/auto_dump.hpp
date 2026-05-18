@@ -9,6 +9,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "dump/action/dump.hpp"
+#include "dig/action/motor_control.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
 
@@ -24,9 +25,14 @@ public:
 private:
     void run_auto_dump(int goal_position);
     bool send_dump_goal(int goal_position);
+    bool send_dig_goal(int target_position);
+
 
     rclcpp_action::Client<dump::action::Dump>::SharedPtr dump_client_;
     rclcpp_action::ClientGoalHandle<dump::action::Dump>::SharedPtr active_goal_handle_;
+    rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr active_dig_goal_handle_;
+
+    rclcpp_action::Client<dig::action::MotorControl>::SharedPtr dig_client_;
     std::thread driver_thread;
     rclcpp::Node* owner_node;
     std::atomic_bool running;

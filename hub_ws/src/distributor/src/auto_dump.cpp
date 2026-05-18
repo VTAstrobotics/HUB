@@ -5,6 +5,7 @@ AutoDump::AutoDump(rclcpp::Node *owner_node)
     this->owner_node = owner_node;
     dump_client_ = rclcpp_action::create_client<dump::action::Dump>(owner_node, "dump_auto");
     velocity_publisher_ = this->owner_node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
+    dig_client_ = rclcpp_action::create_client<dig::action::MotorControl>(owner_node, "motor_control");
 
     running = false;
     cancel_requested = false;
@@ -171,5 +172,56 @@ bool AutoDump::send_dump_goal(int goal_position)
     };
 
     dump_client_->async_send_goal(goal, options);
+    return true;
+}
+
+bool AutoDump::send_dig_goal(int target_position)
+{
+    if (!dig_client_->wait_for_action_server(std::chrono::seconds(1)))
+    {
+        RCLCPP_ERROR(owner_node->get_logger(), "DIG ACTION SERVER NOT LAUNCHED");
+        return false;
+    }
+    dig::action::MotorControl::Goal goal;
+    goal.target_position = target_position;
+    rclcpp_action::Client<dig::action::MotorControl>::SendGoalOptions options;
+
+    options.goal_response_callback =
+        [this](rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr goal_handle)
+    {
+        if (!goal_handle)
+        {
+            RCLCPP_ERROR(owner_node->get_logger(), "Dig goal rejected");
+            return;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(goal_mutex);
+            active_dig_goal_handle_ = goal_handle;
+        }
+
+        RCLCPP_INFO(owner_node->get_logger(), "Dig goal accepted");
+    };
+
+    options.result_callback =
+        [this](const rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::WrappedResult &result)
+    {
+        {
+            std::lock_guard<std::mutex> lock(goal_mutex);
+            active_dig_goal_handle_.reset();
+        }
+
+        if (result.code == rclcpp_action::ResultCode::SUCCEEDED)
+        {
+            RCLCPP_INFO(owner_node->get_logger(), "Dig goal succeeded");
+            dump_goal_succeeded=  true;
+        }
+        else
+        {
+            RCLCPP_WARN(owner_node->get_logger(), "Dig goal did not succeed");
+        }
+    };
+
+    dig_client_->async_send_goal(goal, options);
     return true;
 }
