@@ -9,6 +9,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "dump/action/dump.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+
 
 class AutoDump
 {
@@ -30,6 +32,8 @@ private:
     std::atomic_bool running;
     std::atomic_bool cancel_requested;
     std::atomic_bool dump_goal_succeeded;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher_;
+
 
     std::mutex goal_mutex;
 };
