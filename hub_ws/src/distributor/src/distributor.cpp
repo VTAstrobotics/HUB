@@ -157,7 +157,7 @@ private:
     if (msg->buttons[controls.at(DIG_AUTO)])
     {
       if (!auto_dig_ptr->is_running())
-        auto_dig_ptr->auto_dig(2.5);
+        auto_dig_ptr->auto_dig(4);
     }
 
     if (msg->buttons[controls.at(DIG_AUTO_CANCEL)])

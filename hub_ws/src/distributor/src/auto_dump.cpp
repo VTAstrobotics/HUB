@@ -73,12 +73,12 @@ void AutoDump::run_auto_dump(int goal_position)
     if (goal_position == 1)
     {
         geometry_msgs::msg::Twist cmd;
-        cmd.linear.x = 0.2;
+        cmd.linear.x = -0.2;
         velocity_publisher_->publish(cmd);
 
         auto start_drive = std::chrono::steady_clock::now();
 
-        float dump_time_seconds = 0.2;
+        float dump_time_seconds = 1.3;
 
         while (!cancel_requested)
         {
