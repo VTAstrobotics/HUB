@@ -21,6 +21,7 @@ public:
     void auto_dump(int goal_position);
     void cancel_dump();
     bool is_running();
+    bool is_dig_finished();
 
 private:
     void run_auto_dump(int goal_position);
@@ -39,6 +40,7 @@ private:
     std::atomic_bool cancel_requested;
     std::atomic_bool dump_goal_succeeded;
     std::atomic_bool dig_goal_succeeded;
+    std::atomic_bool dig_finished;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher_;
 
 

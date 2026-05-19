@@ -11,6 +11,7 @@ AutoDump::AutoDump(rclcpp::Node *owner_node)
     cancel_requested = false;
     dump_goal_succeeded = false;
     dig_goal_succeeded = false;
+    dig_finished = true;
 }
 
 AutoDump::~AutoDump()
@@ -64,6 +65,7 @@ void AutoDump::cancel_dump()
         dig_client_->async_cancel_goal(dig_goal); // cancel current goal
     }
     running = false;
+    dig_finished = true;
 }
 
 bool AutoDump::is_running()
@@ -71,44 +73,47 @@ bool AutoDump::is_running()
     return running;
 }
 
+bool AutoDump::is_dig_finished(){
+    return dig_finished;
+}
+
 void AutoDump::run_auto_dump(int goal_position)
 {
     cancel_requested = false;
     dig_goal_succeeded = false;
     dump_goal_succeeded = false;
+    dig_finished = false;
 
     RCLCPP_INFO(owner_node->get_logger(), "Starting auto dump!");
-    if (goal_position == 0) // move bucket out of way - this is not abstracted heavily enough
+    bool dig_status = send_dig_goal(2);
+    if (!dig_status)
     {
-        bool dig_status = send_dig_goal(2);
-        if (!dig_status)
+        running = false;
+        return;
+    }
+    auto start = std::chrono::steady_clock::now();
+    auto timeout = std::chrono::seconds(10);
+
+    while (!dig_goal_succeeded)
+    {
+        if (cancel_requested)
         {
             running = false;
             return;
         }
-        auto start = std::chrono::steady_clock::now();
-        auto timeout = std::chrono::seconds(10);
 
-        while (!dig_goal_succeeded)
+        if (std::chrono::steady_clock::now() - start > timeout)
         {
-            if (cancel_requested)
-            {
-                running = false;
-                return;
-            }
-
-            if (std::chrono::steady_clock::now() - start > timeout)
-            {
-                RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
-                dig_goal_succeeded = false;
-                running = false;
-                cancel_dump();
-                return;
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
+            dig_goal_succeeded = false;
+            running = false;
+            cancel_dump();
+            return;
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
+    dig_finished = true;
 
     bool status = send_dump_goal(goal_position);
     if (!status)
@@ -148,8 +153,8 @@ void AutoDump::run_auto_dump(int goal_position)
         velocity_publisher_->publish(stop);
     }
 
-    auto start = std::chrono::steady_clock::now();
-    auto timeout = std::chrono::seconds(10);
+    start = std::chrono::steady_clock::now();
+    timeout = std::chrono::seconds(10);
 
     while (!dump_goal_succeeded)
     {
