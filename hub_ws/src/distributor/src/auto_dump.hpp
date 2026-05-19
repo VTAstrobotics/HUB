@@ -38,6 +38,7 @@ private:
     std::atomic_bool running;
     std::atomic_bool cancel_requested;
     std::atomic_bool dump_goal_succeeded;
+    std::atomic_bool dig_goal_succeeded;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher_;
 
 

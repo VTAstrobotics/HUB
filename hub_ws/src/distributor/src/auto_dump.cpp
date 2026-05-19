@@ -10,6 +10,7 @@ AutoDump::AutoDump(rclcpp::Node *owner_node)
     running = false;
     cancel_requested = false;
     dump_goal_succeeded = false;
+    dig_goal_succeeded = false;
 }
 
 AutoDump::~AutoDump()
@@ -51,6 +52,18 @@ void AutoDump::cancel_dump()
     {
         dump_client_->async_cancel_goal(goal);
     }
+
+    rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr dig_goal;
+    {
+        std::lock_guard<std::mutex> lock(goal_mutex);
+        dig_goal = active_dig_goal_handle_;
+    }
+
+    if (dig_goal)
+    {
+        dig_client_->async_cancel_goal(dig_goal); // cancel current goal
+    }
+    running = false;
 }
 
 bool AutoDump::is_running()
@@ -60,10 +73,43 @@ bool AutoDump::is_running()
 
 void AutoDump::run_auto_dump(int goal_position)
 {
-    dump_goal_succeeded = false;
     cancel_requested = false;
+    dig_goal_succeeded = false;
+    dump_goal_succeeded = false;
 
     RCLCPP_INFO(owner_node->get_logger(), "Starting auto dump!");
+    if (goal_position == 0) // move bucket out of way - this is not abstracted heavily enough
+    {
+        bool dig_status = send_dig_goal(2);
+        if (!dig_status)
+        {
+            running = false;
+            return;
+        }
+        auto start = std::chrono::steady_clock::now();
+        auto timeout = std::chrono::seconds(10);
+
+        while (!dig_goal_succeeded)
+        {
+            if (cancel_requested)
+            {
+                running = false;
+                return;
+            }
+
+            if (std::chrono::steady_clock::now() - start > timeout)
+            {
+                RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
+                dig_goal_succeeded = false;
+                running = false;
+                cancel_dump();
+                return;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+    }
+
     bool status = send_dump_goal(goal_position);
     if (!status)
     {
@@ -214,7 +260,7 @@ bool AutoDump::send_dig_goal(int target_position)
         if (result.code == rclcpp_action::ResultCode::SUCCEEDED)
         {
             RCLCPP_INFO(owner_node->get_logger(), "Dig goal succeeded");
-            dump_goal_succeeded=  true;
+            dig_goal_succeeded = true;
         }
         else
         {
