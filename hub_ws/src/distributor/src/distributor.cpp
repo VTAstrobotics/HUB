@@ -82,6 +82,7 @@ public:
     this->declare_parameter("DUMP_DEPOSIT", "BUTTON_RBUMPER");
     this->declare_parameter("DUMP_HOME", "BUTTON_A");
     this->declare_parameter("DUMP_UP", "BUTTON_Y");
+    this->declare_parameter("AUTO_DEPOSIT", "BUTTON_LBUMPER");
 
     TRANSLATION_CONTROL = this->get_parameter("TRANSLATION_CONTROL").as_string();
     ROTATION_CONTROL = this->get_parameter("ROTATION_CONTROL").as_string();
@@ -100,6 +101,8 @@ public:
     DIG_AUTO = this->get_parameter("DIG_AUTO").as_string();
     DIG_AUTO_CANCEL = this->get_parameter("DIG_AUTO_CANCEL").as_string();
 
+    AUTO_DEPOSIT = this->get_parameter("AUTO_DEPOSIT").as_string();
+
     // dump buttons declared
     DUMP_DEPOSIT = this->get_parameter("DUMP_DEPOSIT").as_string();
     DUMP_HOME = this->get_parameter("DUMP_HOME").as_string();
@@ -108,17 +111,16 @@ public:
     RCLCPP_INFO(this->get_logger(), "DISTRIBUTOR ONLINE");
   }
 
-  void make_slew_rate_limiters(){
+  void make_slew_rate_limiters()
+  {
     linear_slew_rate_limiter = new slew_rate_limiter{2, this->shared_from_this()};
     dig_slew_rate_limiter = new slew_rate_limiter{0.85, this->shared_from_this()};
   }
 
 private:
-
-
   void joy_callback(sensor_msgs::msg::Joy::SharedPtr msg)
   {
-    
+
     double lin = linear_slew_rate_limiter->calculate(msg->axes[controls.at(TRANSLATION_CONTROL)]) * linear_scale;
     double ang = msg->axes[controls.at(ROTATION_CONTROL)] * angular_scale;
 
@@ -137,13 +139,13 @@ private:
     double dig_duty = dig_slew_rate_limiter->calculate((dig_up - dig_down) * 0.5); // limit duty cycle
     std_msgs::msg::Float32 duty_msg;
     duty_msg.data = dig_duty;
-    if (!auto_dig_ptr->is_running())
+    if (!auto_dig_ptr->is_running() && auto_dump_ptr->is_dig_finished())
     {
       dig_publisher->publish(duty_msg);
     }
 
     double dump_actuator_duty = -(msg->buttons[controls.at(RAISE_ACTUATOR)] - msg->buttons[controls.at(LOWER_ACTUATOR)]);
-    // double inf = msg->buttons[controls.at(CONVEYOR_FORWARD)]; 
+    // double inf = msg->buttons[controls.at(CONVEYOR_FORWARD)];
     if (!auto_dump_ptr->is_running())
     {
       duty_msg.data = dump_actuator_duty;
@@ -184,6 +186,12 @@ private:
         auto_dump_ptr->auto_dump(2);
     }
 
+    if (msg->buttons[controls.at(AUTO_DEPOSIT)])
+    {
+      if (!auto_dig_ptr->is_running())
+        auto_dig_ptr->auto_deposit();
+    }
+
     // std_msgs::msg::Int32 homing_msg;
     // int actuator_homing = msg->buttons[controls.at(ACTUATOR_HOMING)];
     // homing_msg.data = actuator_homing;
@@ -207,7 +215,6 @@ private:
   double angular_scale = 1.1;
   Stopwatch stopwatch;
 
-
   // this is where you can declare subscribers/publishers.
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr dig_publisher;
@@ -227,15 +234,16 @@ private:
   std::string DIG_UP;
   std::string DIG_DOWN;
   std::string ACTUATOR_HOMING;
-  slew_rate_limiter* linear_slew_rate_limiter;
-  slew_rate_limiter* dig_slew_rate_limiter;
-  
+  slew_rate_limiter *linear_slew_rate_limiter;
+  slew_rate_limiter *dig_slew_rate_limiter;
+
   std::string DIG_AUTO;
   std::string DIG_AUTO_CANCEL;
   std::string DUMP_DEPOSIT;
   std::string DUMP_HOME;
   std::string DUMP_CANCEL;
   std::string DUMP_UP;
+  std::string AUTO_DEPOSIT;
 
   std::shared_ptr<AutoDig> auto_dig_ptr;
   std::shared_ptr<AutoDump> auto_dump_ptr;

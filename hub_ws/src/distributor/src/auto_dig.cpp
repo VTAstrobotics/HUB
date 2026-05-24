@@ -36,9 +36,26 @@ void AutoDig::auto_dig(float drive_time_seconds)
     }
     running = true;
 
-
     driver_thread = std::thread([this, drive_time_seconds]()
                                 { run_auto_dig(drive_time_seconds); });
+    RCLCPP_INFO(owner_node->get_logger(), "Auto dig thread created");
+}
+
+void AutoDig::auto_deposit()
+{
+    if (running)
+    {
+        RCLCPP_INFO(owner_node->get_logger(), "Auto deposit already running");
+        return;
+    }
+    if (driver_thread.joinable())
+    {
+        driver_thread.join();
+    }
+    running = true;
+
+    driver_thread = std::thread([this]()
+                                { run_auto_deposit(); });
     RCLCPP_INFO(owner_node->get_logger(), "Auto dig thread created");
 }
 
@@ -58,6 +75,7 @@ void AutoDig::cancel_dig()
     {
         dig_client_->async_cancel_goal(goal); // cancel current goal
     }
+    running = false;
 }
 
 bool AutoDig::is_running()
@@ -108,7 +126,7 @@ void AutoDig::run_auto_dig(float drive_time_seconds)
 
     start = std::chrono::steady_clock::now();
     std_msgs::msg::Float32 dig_down_command;
-    dig_down_command.data = 0.01; //1% downwards forcing duty cycle
+    dig_down_command.data = 0.01; // 1% downwards forcing duty cycle
 
     while (!cancel_requested)
     {
@@ -217,4 +235,49 @@ bool AutoDig::send_dig_goal(int target_position)
 
     dig_client_->async_send_goal(goal, options);
     return true;
+}
+
+void AutoDig::run_auto_deposit()
+{
+
+    dig_goal_succeeded = false;
+    cancel_requested = false;
+    dig_goal_succeeded = false;
+
+    RCLCPP_INFO(owner_node->get_logger(), "Starting auto deposit!");
+    bool dig_status = send_dig_goal(1);
+    if (!dig_status)
+    {
+        running = false;
+        return;
+    }
+    auto start = std::chrono::steady_clock::now();
+    auto timeout = std::chrono::seconds(10);
+
+    while (!dig_goal_succeeded)
+    {
+        if (cancel_requested)
+        {
+            running = false;
+            return;
+        }
+
+        if (std::chrono::steady_clock::now() - start > timeout)
+        {
+            RCLCPP_WARN(owner_node->get_logger(), "Dig goal timeout");
+            dig_goal_succeeded = false;
+            running = false;
+            cancel_dig();
+            return;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    if (cancel_requested)
+    {
+        running = false;
+        RCLCPP_WARN(owner_node->get_logger(), "auto deposit canceled");
+        return;
+    }
+    running = false;
 }

@@ -21,10 +21,12 @@ public:
     void auto_dig(float drive_time_seconds);
     void cancel_dig();
     bool is_running();
+    void auto_deposit();
 
 private:
     void run_auto_dig(float drive_time_seconds);
     bool send_dig_goal(int target_position);
+    void run_auto_deposit();
 
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher_;
     rclcpp_action::Client<dig::action::MotorControl>::SharedPtr dig_client_;
