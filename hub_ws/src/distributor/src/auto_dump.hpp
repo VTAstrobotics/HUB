@@ -28,7 +28,6 @@ private:
     bool send_dump_goal(int goal_position);
     bool send_dig_goal(int target_position);
 
-
     rclcpp_action::Client<dump::action::Dump>::SharedPtr dump_client_;
     rclcpp_action::ClientGoalHandle<dump::action::Dump>::SharedPtr active_goal_handle_;
     rclcpp_action::ClientGoalHandle<dig::action::MotorControl>::SharedPtr active_dig_goal_handle_;
